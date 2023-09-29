@@ -7,6 +7,7 @@ float sample_rate;
 
 ReverbSc DSY_SDRAM_BSS verb;
 PitchShifter ps;
+PitchShifter ps2;
 
 static float dryLevel, wetLevel, cv1, cv2, ps_level, send;
 
@@ -16,18 +17,21 @@ float CtrlVal(uint8_t pin) {
 }
 
 void callback(float **in, float **out, size_t size) {
-  float dryL, dryR, verbL, verbR, shiftedL, shiftedR;
+  float dryL, dryR, verbL, verbR, shiftedL, shiftedR, shiftedL2, shiftedR2;
 
   for (size_t i = 0; i < size; i++) {
     dryL = in[0][i];
     dryR = in[1][i];
    
-    verb.Process(dryL, dryR, &verbL, &verbR);
-    shiftedL = ps.Process(verbL);
-    shiftedR = ps.Process(verbR);
+    shiftedL = ps.Process(dryL);
+    shiftedR = ps.Process(dryR);
+    shiftedL2 = ps2.Process(dryL);
+    shiftedR2 = ps2.Process(dryR);
 
-    out[0][i] = (dryL * dryLevel) + verbL * wetLevel + shiftedL * ps_level;
-    out[1][i] = (dryR * dryLevel) + verbR * wetLevel + shiftedR * ps_level;
+    verb.Process(dryL + shiftedL * ps_level + shiftedL2 * ps_level * 0.5f, dryR + shiftedR * ps_level + shiftedR2 * ps_level * 0.5f, &verbL, &verbR);
+
+    out[0][i] = (dryL * dryLevel) + verbL * wetLevel;
+    out[1][i] = (dryR * dryLevel) + verbR * wetLevel;
   }
 } 
 
@@ -42,6 +46,9 @@ void setup() {
 
   ps.Init(sample_rate);
   ps.SetTransposition(12.0f);
+
+  ps2.Init(sample_rate);
+  ps2.SetTransposition(24.0f);
 
   wetLevel = 0.1f;
   DAISY.begin(callback);
