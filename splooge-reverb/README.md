@@ -1,6 +1,7 @@
 # Splooge Reverb
 
-Stereo Reverb for the WgdModular lowenzahnhonig Daisy Seed Eurorack module.
+Stereo Reverb for the wgd modular löwenzahnhonig Daisy Seed Eurorack module.
+
 This effect works best if InL is normalled to InR in hardware. 
 
 ## Author
