@@ -15,12 +15,14 @@ Nik Ansell (gamecat69)
 
 ### Controls:
 
-Pot1 : Reverb Feedback
-Pot2 : Dry/Wet
-Pot3 : Wet Tone
-Pot4 : Splooge. Similar to a spring reverb with delay at low settings and high-feedback shimmer effect at high settings when tone is also high.
-Cv1  : Wet Tone (summed with Pot3)
-Cv2  : Splooge (summed with Pot4)
+| Control | Function        |
+|---------|-----------------|
+| P1      | Reverb Feedback     |
+| P2      | Dry/Wet      |
+| P3      | Wet Tone        |
+| P4      | Splooge. Similar to a spring reverb with delay at low settings and high-feedback shimmer effect at high settings when tone is also high.  |
+| CV1     | Wet Tone CV     |
+| CV2     | Splooge CV |
 
 ### Patching ideas:
 
