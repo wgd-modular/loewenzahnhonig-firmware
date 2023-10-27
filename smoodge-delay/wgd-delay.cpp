@@ -211,7 +211,7 @@ int main(void)
 		// potVal*PotVal provides a more exponential increase in value as the pot value increases
 		oscValue = osc.Process();
 		delayTimeSecsL = delayTimeSecsL + ((20* oscValue) * (pot4Value*pot4Value));
-		delayTimeSecsR = delayTimeSecsL + ((20* oscValue) * (pot4Value*pot4Value));
+		delayTimeSecsR = delayTimeSecsR + ((20* oscValue) * (pot4Value*pot4Value));
 
 		//	Increase gain with pot4 (0.5 is unity)
 		gainLevel = 0.5f + (pot4Value * 0.4f);
