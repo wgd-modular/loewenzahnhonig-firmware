@@ -10,6 +10,8 @@ Nik Ansell (gamecat69)
 
 ### Version History
 0.1		Nik Ansell		Initial plaything
+0.2     Nik Ansell      Updated Smoodge Effect
+0.3     Nik Ansell      Added tape effects to smoodge parameter
 
 ## Description
 
@@ -22,11 +24,23 @@ Nik Ansell (gamecat69)
 | P3      | Delay Time (See Usage below)      |
 | P4      | Smoodge (See Usage below)      |
 | CV1     | Input Clock      |
-| CV2     | Smoodge CV      |
+| CV2     | Delay Feedback (Repeats) Summed with P1     |
 
 ### Usage
 
 Start by plugging in a stereo sound source (or mono into the L input if you have normalled your R-input to the L-input), then connect the left and right outputs to a mixer.
+
+You might find it easier to dial in the sound you want using the following process:
+
+1. Set the feedback to min
+2. Set the Dry/Wet to 50%
+3. Set the Smoodget to min
+4. Set the Delay Time to 50%
+5. Start your sound source
+6. Adjust the Delay Time to something that you like
+7. Gradually increase the feedback until it sounds good to you
+8. Gradually increase the Smoodge
+9. Remember these settings, then go wild with the controls and see what happens!
 
 The Delay Feedback and Dry/Wet controls act as you would expect:
 - Delay Feedback: At min will produce one repeat/echo. At max it will feedback infinitely - you can even remove your sound source once it is looping if you like!
@@ -43,7 +57,7 @@ If you imagine the knob goes from 0 to 10, below you will find the divisions/mul
 - 2: /3 (half-note triplets)
 - 3: /2
 - 4: /1.5 (whole note triplets)
-- 5: /1 or x1 whichever feels better :)
+- 5: /1 or x1 whichever sounds better to you
 - 6: x2
 - 7: x3
 - 8: x4
@@ -51,13 +65,12 @@ If you imagine the knob goes from 0 to 10, below you will find the divisions/mul
 - 10: x8
 
 If for example you send in clocks which are 1 second apart, setting the Delay Time knob in the centre would produce echo's every second, at min it would produce an echo every 1/8th of a second and at max it would produce an echo every 8 seconds.
-**Note:** The maximum delay time is capped automatically at 10 seconds.
+**Note:** The maximum delay time is capped automatically at 16 seconds.
 
 #### Smoodge
 
-This control produces a stereo effect. With the Smoodge knob at min there is no effect.
-From 0 - 50% the control will add a nice stereo spread to the sound that makes everything sound quite spacious and lucious.
-Above 50% you will notices the spread becomes less of a spatial effect and more of a 'special' effect - the delay times between the left and right channels will be more obvious and you will also notice a slow chorus effect that adds a warm fuzziness to the sound.
+This control produces a spatial stereo effect from 0-50% and a tape saturation, wow and flutter effect with more spatial separation from 50-100%.
+With the Smoodge knob at min there is no effect.
 
 ## Flashing your Daisy Seed
 

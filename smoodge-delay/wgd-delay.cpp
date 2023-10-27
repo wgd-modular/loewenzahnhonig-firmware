@@ -1,6 +1,7 @@
 #include "daisy_seed.h"
 #include "daisysp.h"
 #include <chrono>
+#include <random>
 
 using namespace daisy;
 using namespace daisysp;
@@ -12,11 +13,14 @@ DaisySeed hw;
 static DelayLine<float, MAX_DELAY> DSY_SDRAM_BSS dell;
 static DelayLine<float, MAX_DELAY> DSY_SDRAM_BSS delr;
 static Chorus  chorus;
+static Tremolo bcL;
+static Tremolo bcR;
+static Oscillator osc;
 
 // Init vars
 float sample_rate, dryL, dryR, delayOutL, delayOutR, delayTimeSecsL, delayTimeSecsR, delayFeedback;
-float currentDelayL, currentDelayR;
-float pot3Value, pot4Value, dryWetMixL, dryWetMixR, dryAmplitude, wetAmplitude;
+float currentDelayL, currentDelayR, cv1, cv2;
+float pot1Value, pot2Value, pot3Value, pot4Value, dryWetMixL, dryWetMixR, dryAmplitude, wetAmplitude;
 float chorusL, chorusR;
 bool newClkVal = false;
 bool oldClkVal = false;
@@ -26,6 +30,7 @@ float previousDivisor = divisor;
 bool divisorChanged = false;
 float maxFeedback = 1.0f;
 int idx = 0;
+float oscValue;
 
 int numClksRx = 0;
 uint32_t previousTimestamp = 0;
@@ -33,6 +38,15 @@ uint32_t currentTimestamp = 0;
 uint32_t durationMs = 0;
 uint32_t durationArr[3] = {0,0,0};
 float sum=0.0;
+bool smoodgeActive = true;
+float gainLevel = 0.5;
+
+//	Function to generate a random int between high and low
+
+int genRandInt( int high, int low ) {
+  	std::srand( ( unsigned int )std::time( nullptr ) );
+	return low + std::rand() % ( high - low );
+}
 
 // Function to set value n to within the lower and upper limits
 float clamp(float n, float lower, float upper) {
@@ -48,35 +62,37 @@ void AudioCallback(AudioHandle::InputBuffer in, AudioHandle::OutputBuffer out, s
 {
 	for (size_t i = 0; i < size; i++) {
 	
-		//out[0][i] = in[0][i];
-		//out[1][i] = in[1][i];
-
 		dryL = in[0][i];
 		dryR = in[1][i];
 
 		// Add Chorus to Dry signal
-		chorus.Process((dryL + dryR) * 0.7);
+		chorus.Process((dryL + dryR) * gainLevel);
 		chorusL = chorus.GetLeft();
 		chorusR = chorus.GetRight();
 
 		// Set the delay time (fonepole smooths out the changes)
 		fonepole(currentDelayL, delayTimeSecsL, .0001f);
+		
 		// Stereo effect: Reduce the delaytime of the Right channel as Pot4 increases
-		fonepole(currentDelayR, (delayTimeSecsR * (1-pot4Value/7)), .0001f);
-		delr.SetDelay(currentDelayL);
+		fonepole(currentDelayR, (delayTimeSecsR * (1-(pot4Value/14))), .0001f);
+
+		// Delayline processing
+		delr.SetDelay(currentDelayL); 
 		dell.SetDelay(currentDelayR); 
 		delayOutL = dell.Read();
     	delayOutR = delr.Read();
     	dell.Write((delayFeedback * delayOutL) + (dryL) + (chorusL * pot4Value));
     	delr.Write((delayFeedback * delayOutR) + (dryR) + (chorusR * pot4Value));
 
-		// Add feedback
+		//	Add Tremolo to delayline output
+		delayOutL = bcL.Process(delayOutL);
+		delayOutR = bcR.Process(delayOutR);
+
+		// Create finel dry/wet mix and send to the output with soft limitting
 		dryWetMixL = (dryL * dryAmplitude) + (delayOutL * wetAmplitude);
 		dryWetMixR = (dryR * dryAmplitude) + (delayOutR * wetAmplitude);
-
-		// Send to the output
-		out[0][i] = dryWetMixL;
-		out[1][i] = dryWetMixR;
+		out[0][i] = SoftLimit(dryWetMixL);
+		out[1][i] = SoftLimit(dryWetMixR);
 
 	}
 }
@@ -94,7 +110,18 @@ int main(void)
 	// Init DSP
 	dell.Init();
     delr.Init();
+	
 	chorus.Init(sample_rate);
+	
+	bcL.Init(sample_rate);
+	bcR.Init(sample_rate);
+	bcL.SetWaveform(Oscillator::WAVE_SIN);
+	bcR.SetWaveform(Oscillator::WAVE_SIN);
+	
+	osc.Init(sample_rate);
+	osc.SetAmp(20.0f);
+	osc.SetFreq(0.05f);
+	osc.SetWaveform(Oscillator::WAVE_SIN);
 
     // Configure, init and start listening on the ADC pins for each pot and CV input
     AdcChannelConfig adcConfig[6];
@@ -111,16 +138,21 @@ int main(void)
 
 	while(1) {
 
-		float cv1 = 1- hw.adc.GetFloat(4);
-		float cv2 = 1- hw.adc.GetFloat(5);
+		// Set some pot and CV values
+		cv1 = 1- hw.adc.GetFloat(4);
+		cv2 = 1- hw.adc.GetFloat(5);
 
-		//	Set the pot CV values
-		//	CV2 is summed with with Pot3+4
-		//	Range is limited to 0.0 - 1.0
+		pot1Value = hw.adc.GetFloat(0);
+		pot2Value = hw.adc.GetFloat(1);
 		pot3Value = hw.adc.GetFloat(2);
-		pot4Value = clamp(cv2 + hw.adc.GetFloat(3), 0.0f, 1.0f);
+		pot4Value = hw.adc.GetFloat(3);
 
-		delayFeedback = maxFeedback * hw.adc.GetFloat(0);
+		// Option: Use pot1 for feedback and cv2 + pot4 for smoodge
+		//delayFeedback = maxFeedback * pot1Value;
+		//pot4Value = clamp(cv2 + pot4Value, 0.0f, 1.0f);
+
+		// Option: Use Pot1 and cv2 for feedback
+		delayFeedback = maxFeedback * clamp(cv2 + pot1Value, 0.0f, 1.0f);
 
 		//	Set the delay time based on Pot3
 		if (pot3Value == 0.0f)      {divisor = 8;} 
@@ -167,19 +199,36 @@ int main(void)
 			}
 
 		}
+
 		// Set the oldClkVal to the current one for comparison on the next loop iteration
    		oldClkVal = newClkVal;
 		
+		//	Set the target delay time based on the divisor
 		delayTimeSecsL = (delayTimeSecs * 48000) / divisor;
 		delayTimeSecsR = (delayTimeSecs * 48000) / divisor;
+
+		// Add wow/flutter effect using the SINE wave oscillator
+		// potVal*PotVal provides a more exponential increase in value as the pot value increases
+		oscValue = osc.Process();
+		delayTimeSecsL = delayTimeSecsL + ((20* oscValue) * (pot4Value*pot4Value));
+		delayTimeSecsR = delayTimeSecsL + ((20* oscValue) * (pot4Value*pot4Value));
+
+		//	Increase gain with pot4 (0.5 is unity)
+		gainLevel = 0.5f + (pot4Value * 0.4f);
 
 		// Set Chorus Params
 		chorus.SetLfoFreq(pot4Value * 1.f);
 		chorus.SetLfoDepth(0.2);
 		chorus.SetFeedback(pot4Value * 0.5);
 
+		// Tremelo params
+		bcL.SetDepth(pot4Value * 0.7f);
+		bcL.SetFreq(pot4Value * 2.0f);
+		bcR.SetDepth(pot4Value * 0.8f);
+		bcR.SetFreq(pot4Value * 2.5f);
+
 		// Set the wet and dry mix
-		wetAmplitude = hw.adc.GetFloat(1);
+		wetAmplitude = pot2Value;
 		dryAmplitude = 1 - wetAmplitude;
 	}
 }
