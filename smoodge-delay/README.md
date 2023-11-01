@@ -1,8 +1,14 @@
 # Smoodge Delay
 
 Stereo Clockable Delay for the wgd modular löwenzahnhonig Daisy Seed Eurorack module.
+Delay times up to 16 seconds are supported and it has no noticeable minimum delay time - so go wild!
 
-This effect works best if InL is normalled to InR in hardware.
+In addition to behaving like a regular stereo delay effect, there is an adjustable spatial effect called smoodge.
+At low levels (1-50%) smoodge will create a wider stereo field using psychoacoustic techniques.
+At higher levels (50-100%) the psychoacoustic techniques increase in intensity, plus other effects are introduced such as wow and flutter, tape saturation and a stereo tremelo effect that varies over time if you are clocking the module.
+The smoodge effect is most noticeable when both the Wet and Feedback controls move towards higher ranges.
+
+If you are using a mono source this effect works best if InL is normalled to InR in hardware.
 
 ## Author
 
@@ -12,6 +18,7 @@ Nik Ansell (gamecat69)
 0.1		Nik Ansell		Initial plaything
 0.2     Nik Ansell      Updated Smoodge Effect
 0.3     Nik Ansell      Added tape effects to smoodge parameter
+0.4     Nik Ansell      Tweaked the behaviour of the smoodge effect
 
 ## Description
 
@@ -22,7 +29,7 @@ Nik Ansell (gamecat69)
 | P1      | Delay Feedback (Repeats)      |
 | P2      | Dry/Wet      |
 | P3      | Delay Time (See Usage below)      |
-| P4      | Smoodge (See Usage below)      |
+| P4      | Smoodge (see notes above)      |
 | CV1     | Input Clock      |
 | CV2     | Delay Feedback (Repeats) Summed with P1     |
 
@@ -34,7 +41,7 @@ You might find it easier to dial in the sound you want using the following proce
 
 1. Set the feedback to min
 2. Set the Dry/Wet to 50%
-3. Set the Smoodget to min
+3. Set the Smoodge to min
 4. Set the Delay Time to 50%
 5. Start your sound source
 6. Adjust the Delay Time to something that you like
@@ -50,7 +57,7 @@ The Delay Feedback and Dry/Wet controls act as you would expect:
 
 The Delay Time control will change the delay time as a division or multiplication of the delay time set by the input clock.
 Note, if you turn on the module without giving it a clock the default delay time is 1 second.
-If you imagine the knob goes from 0 to 10, below you will find the divisions/multiplications the corespond to each number on the dial.
+If you imagine the knob goes from 0 to 10, below you will find the divisions/multiplications that corespond to each number on the dial.
 
 - 0: /8
 - 1: /4
@@ -64,13 +71,7 @@ If you imagine the knob goes from 0 to 10, below you will find the divisions/mul
 - 9: x5
 - 10: x8
 
-If for example you send in clocks which are 1 second apart, setting the Delay Time knob in the centre would produce echo's every second, at min it would produce an echo every 1/8th of a second and at max it would produce an echo every 8 seconds.
-**Note:** The maximum delay time is capped automatically at 16 seconds.
-
-#### Smoodge
-
-This control produces a spatial stereo effect from 0-50% and a tape saturation, wow and flutter effect with more spatial separation from 50-100%.
-With the Smoodge knob at min there is no effect.
+If for example you send in clocks which are 1 second apart, setting the Delay Time knob in the centre would produce echos every second, at min it would produce an echo every 1/8th of a second and at max it would produce an echo every 8 seconds.
 
 ## Flashing your Daisy Seed
 
