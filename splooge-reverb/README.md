@@ -11,6 +11,7 @@ Nik Ansell (gamecat69)
 ### Version History:
 0.1		Nik Ansell		Initial plaything
 0.2		Nik Ansell		Added Splooge on Pot4/Cv2 + HPF on Wet Tone control (Pot3/Cv1)
+0.3     Nik Ansell      Improved Dry/Wet gain balance. Improved Sploodge effect by reducing delay time and reducing pitchshift gain at lower sploodge settings.
 
 ## Description
 
