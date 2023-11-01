@@ -21,7 +21,7 @@ static Oscillator osc;
 float sample_rate, dryL, dryR, delayOutL, delayOutR, delayTimeSecsL, delayTimeSecsR, delayFeedback;
 float currentDelayL, currentDelayR, cv1, cv2;
 float pot1Value, pot2Value, pot3Value, pot4Value, dryWetMixL, dryWetMixR, dryAmplitude, wetAmplitude;
-float chorusL, chorusR;
+float chorusL, chorusR, oscValue;
 bool newClkVal = false;
 bool oldClkVal = false;
 float divisor = 1;
@@ -30,8 +30,6 @@ float previousDivisor = divisor;
 bool divisorChanged = false;
 float maxFeedback = 1.0f;
 int idx = 0;
-float oscValue;
-
 int numClksRx = 0;
 uint32_t previousTimestamp = 0;
 uint32_t currentTimestamp = 0;
@@ -40,9 +38,9 @@ uint32_t durationArr[3] = {0,0,0};
 float sum=0.0;
 bool smoodgeActive = true;
 float gainLevel = 0.5;
+int rndTremFreq = 0.54;
 
 //	Function to generate a random int between high and low
-
 int genRandInt( int high, int low ) {
   	std::srand( ( unsigned int )std::time( nullptr ) );
 	return low + std::rand() % ( high - low );
@@ -53,6 +51,7 @@ float clamp(float n, float lower, float upper) {
 	return n <= lower ? lower : n >= upper ? upper : n;
 }
 
+// Function returns true if value >= threshold
 bool isInputHigh(float threshold, float value) {
    if (value >= threshold) {return true;} 
    else {return false;}
@@ -70,13 +69,13 @@ void AudioCallback(AudioHandle::InputBuffer in, AudioHandle::OutputBuffer out, s
 		chorusL = chorus.GetLeft();
 		chorusR = chorus.GetRight();
 
-		// Set the delay time (fonepole smooths out the changes)
+		// Set the delay time (fonepole/Filter one-pole smooths out the changes)
 		fonepole(currentDelayL, delayTimeSecsL, .0001f);
 		
 		// Stereo effect: Reduce the delaytime of the Right channel as Pot4 increases
 		fonepole(currentDelayR, (delayTimeSecsR * (1-(pot4Value/14))), .0001f);
 
-		// Delayline processing
+		// Delayline processing with feedback
 		delr.SetDelay(currentDelayL); 
 		dell.SetDelay(currentDelayR); 
 		delayOutL = dell.Read();
@@ -119,9 +118,9 @@ int main(void)
 	bcR.SetWaveform(Oscillator::WAVE_SIN);
 	
 	osc.Init(sample_rate);
-	osc.SetAmp(20.0f);
-	osc.SetFreq(0.05f);
 	osc.SetWaveform(Oscillator::WAVE_SIN);
+	osc.SetAmp(0.0f);
+	osc.SetFreq(0.05f);
 
     // Configure, init and start listening on the ADC pins for each pot and CV input
     AdcChannelConfig adcConfig[6];
@@ -181,18 +180,26 @@ int main(void)
 					// We have a previous timestamp, get the time between that and now
 					currentTimestamp = System::GetNow();
 					durationMs = (currentTimestamp - previousTimestamp);
-					// Add the time diff in Ms to an array (the array is used to smooth out the bumps a little)
+					// Add the time diff in Ms to an array/circular buffer (this is used to smooth out the bumps a little)
 					durationArr[idx] = durationMs;
-					// If we have >= 3 clocks, calculate the average time between the last three
+					// If we have >= 3 clock timings in our buffer, calculate the average time between the last three
 					//   then update the delay time
 					if (numClksRx >= 3) {
 						for(int i = 0; i < 3; ++i) {sum += durationArr[i];}
 						delayTimeSecs = float((sum / 3) / 1000.0f);
 						sum = 0.0;
 					}
+
+					// Generate a new Tremelo frequency every 4th clock
+					if (numClksRx % 4 == 0) {
+						rndTremFreq = genRandInt(1,10) / 10.0f;
+						bcL.SetFreq(rndTremFreq - 0.1f);
+						bcR.SetFreq(rndTremFreq);
+					}
 				}
 
 				previousTimestamp = System::GetNow();
+				
 			} else {
 				// falling edge of the incoming gate/trigger
 				hw.SetLed(false);
@@ -210,6 +217,7 @@ int main(void)
 		// Add wow/flutter effect using the SINE wave oscillator
 		// potVal*PotVal provides a more exponential increase in value as the pot value increases
 		oscValue = osc.Process();
+		osc.SetAmp(9.0f * pot4Value);
 		delayTimeSecsL = delayTimeSecsL + ((20* oscValue) * (pot4Value*pot4Value));
 		delayTimeSecsR = delayTimeSecsR + ((20* oscValue) * (pot4Value*pot4Value));
 
@@ -219,13 +227,12 @@ int main(void)
 		// Set Chorus Params
 		chorus.SetLfoFreq(pot4Value * 1.f);
 		chorus.SetLfoDepth(0.2);
-		chorus.SetFeedback(pot4Value * 0.5);
+		chorus.SetFeedback((pot4Value * pot4Value) * 0.5);
 
 		// Tremelo params
-		bcL.SetDepth(pot4Value * 0.7f);
-		bcL.SetFreq(pot4Value * 2.0f);
-		bcR.SetDepth(pot4Value * 0.8f);
-		bcR.SetFreq(pot4Value * 2.5f);
+		bcL.SetDepth(pot4Value * 0.61f);
+		bcR.SetDepth(pot4Value * 0.6f);
+		//bcR.SetFreq(pot4Value * 0.5f);
 
 		// Set the wet and dry mix
 		wetAmplitude = pot2Value;
