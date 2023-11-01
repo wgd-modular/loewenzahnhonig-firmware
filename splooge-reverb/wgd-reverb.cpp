@@ -22,12 +22,15 @@ static DelayLine<float, MAX_DELAY> DSY_SDRAM_BSS dell;
 static DelayLine<float, MAX_DELAY> DSY_SDRAM_BSS delr;
 static Svf        filtL;
 static Svf        filtR;
+static Balance    balL;
+static Balance    balR;
 
 // Init vars
 float dryAmplitude, wetAmplitude, sample_rate;
 float delayTimeSecs, delayOutL, delayOutR, delayFeedback;
 float dryL, dryR, verbL, verbR, chorusL, chorusR, pitchShifter1, pitchShifter2, pitchShifterLR, pot4Value;
 float reverbLpFreqControl, reverbLpFreq;
+float dryWetMixL, dryWetMixR;
 
 // Function to set value n to within the lower and upper limits
 float clamp(float n, float lower, float upper) {
@@ -47,14 +50,14 @@ void AudioCallback(AudioHandle::InputBuffer in, AudioHandle::OutputBuffer out, s
 		dryR = in[1][i];
 
 		// Bounce the inputs down to mono for DSP functions
-		float monoInput = (dryL * 0.5) + (dryR * 0.5);
+		float monoInput = (dryL * 0.7) + (dryR * 0.7);
 
 		// Pitch-shift the input
 		pitch_shifter.SetTransposition(24.0f);
 		pitchShifter1 = pitch_shifter.Process(monoInput);
 		pitch_shifter.SetTransposition(12.0f);
 		pitchShifter2 = pitch_shifter.Process(monoInput);
-		pitchShifterLR = (pitchShifter1 * (0.5 * pot4Value)) + (pitchShifter2 * (0.5 * pot4Value));
+		pitchShifterLR = (pitchShifter1 * (0.5 * (pot4Value * pot4Value))) + (pitchShifter2 * (0.2 * (pot4Value * pot4Value)));
 		
 		//	Push the pitch-shifted input through the chorus effect
 		chorus.Process(pitchShifterLR);
@@ -79,8 +82,18 @@ void AudioCallback(AudioHandle::InputBuffer in, AudioHandle::OutputBuffer out, s
 		filtL.Process(verbL * wetAmplitude);
 		filtR.Process(verbR * wetAmplitude);
 
-		out[0][i] = (dryL * dryAmplitude) + filtL.High();
-		out[1][i] = (dryR * dryAmplitude) + filtR.High();
+		//out[0][i] = (dryL * dryAmplitude) + filtL.High();
+		//out[1][i] = (dryR * dryAmplitude) + filtR.High();
+
+		dryWetMixL = (dryL * dryAmplitude) + filtL.High();
+		dryWetMixR = (dryR * dryAmplitude) + filtR.High();
+
+		//	Apply make up gain to the wet signal if needed
+		balL.Process(dryWetMixL, dryL);
+		balL.Process(dryWetMixR, dryR);
+
+		out[0][i] = dryWetMixL;
+		out[1][i] = dryWetMixR;
 
 	}
 }
@@ -101,11 +114,13 @@ int main(void)
     delr.Init();
 	filtL.Init(sample_rate);
 	filtR.Init(sample_rate);
+	balL.Init(sample_rate);
+	balR.Init(sample_rate);
 
 	// Set delay time
-	delayTimeSecs = sample_rate * 0.25f;
+	delayTimeSecs = sample_rate * 0.15f;
     dell.SetDelay(delayTimeSecs);
-    delr.SetDelay(delayTimeSecs);
+    delr.SetDelay(delayTimeSecs-0.01f);
 
     // Configure, init and start listening on the ADC pins for each pot and CV input
     AdcChannelConfig adcConfig[6];
