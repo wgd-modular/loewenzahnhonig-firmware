@@ -2,12 +2,15 @@
 #include "daisysp.h"
 #include <chrono>
 #include <random>
+#include <math.h>
 
 using namespace daisy;
 using namespace daisysp;
 using namespace std::chrono;
 
 DaisySeed hw;
+
+#define CV_CHANGE_TOLERANCE .01f
 
 #define MAX_DELAY static_cast<size_t>(48000 * 16.0f)
 static DelayLine<float, MAX_DELAY> DSY_SDRAM_BSS dell;
@@ -19,13 +22,14 @@ static Oscillator osc;
 
 // Init vars
 float sample_rate, dryL, dryR, delayOutL, delayOutR, delayTimeSecsL, delayTimeSecsR, delayFeedback;
-float currentDelayL, currentDelayR, cv1, cv2;
+float currentDelayL, currentDelayR, cv1, cv2Temp;
+float cv2 = 0.0;
 float pot1Value, pot2Value, pot3Value, pot4Value, dryWetMixL, dryWetMixR, dryAmplitude, wetAmplitude;
 float chorusL, chorusR, oscValue;
 bool newClkVal = false;
 bool oldClkVal = false;
 float divisor = 1;
-float delayTimeSecs = 1.0f; 
+float delayTimeSecs = 0.4f; 
 float previousDivisor = divisor;
 bool divisorChanged = false;
 float maxFeedback = 1.0f;
@@ -35,10 +39,12 @@ uint32_t previousTimestamp = 0;
 uint32_t currentTimestamp = 0;
 uint32_t durationMs = 0;
 uint32_t durationArr[3] = {0,0,0};
+
 float sum=0.0;
 bool smoodgeActive = true;
 float gainLevel = 0.5;
 int rndTremFreq = 0.54;
+bool cv2ControlsFeedback = true;
 
 //	Function to generate a random int between high and low
 int genRandInt( int high, int low ) {
@@ -139,19 +145,25 @@ int main(void)
 
 		// Set some pot and CV values
 		cv1 = 1- hw.adc.GetFloat(4);
-		cv2 = 1- hw.adc.GetFloat(5);
+
+		// Set cv2 value only if it has changed by > CV_CHANGE_TOLERANCE
+		cv2Temp = 1- hw.adc.GetFloat(5);
+		if (fabsf((cv2Temp - cv2)) > CV_CHANGE_TOLERANCE) { cv2 = cv2Temp; }
 
 		pot1Value = hw.adc.GetFloat(0);
 		pot2Value = hw.adc.GetFloat(1);
 		pot3Value = hw.adc.GetFloat(2);
-		pot4Value = hw.adc.GetFloat(3);
 
-		// Option: Use pot1 for feedback and cv2 + pot4 for smoodge
-		//delayFeedback = maxFeedback * pot1Value;
-		//pot4Value = clamp(cv2 + pot4Value, 0.0f, 1.0f);
+		if (cv2ControlsFeedback) {
+			// Option: Use Pot1 and cv2 for feedback
+			delayFeedback = maxFeedback * clamp(cv2 + pot1Value, 0.0f, 1.0f);
+			pot4Value = hw.adc.GetFloat(3);
+		} else {
+			// Option: Use pot1 for feedback and cv2 + pot4 for smoodge
+			delayFeedback = maxFeedback * pot1Value;
+			pot4Value = clamp(cv2 + hw.adc.GetFloat(3), 0.0f, 1.0f);
 
-		// Option: Use Pot1 and cv2 for feedback
-		delayFeedback = maxFeedback * clamp(cv2 + pot1Value, 0.0f, 1.0f);
+		}
 
 		//	Set the delay time based on Pot3
 		if (pot3Value == 0.0f)      {divisor = 8;} 
@@ -182,6 +194,7 @@ int main(void)
 					durationMs = (currentTimestamp - previousTimestamp);
 					// Add the time diff in Ms to an array/circular buffer (this is used to smooth out the bumps a little)
 					durationArr[idx] = durationMs;
+
 					// If we have >= 3 clock timings in our buffer, calculate the average time between the last three
 					//   then update the delay time
 					if (numClksRx >= 3) {
@@ -203,6 +216,8 @@ int main(void)
 			} else {
 				// falling edge of the incoming gate/trigger
 				hw.SetLed(false);
+				// Switch CV2 mode if the gate was high for >= 10 seconds
+				//if (durationMs >= 10000) { cv2ControlsFeedback = !cv2ControlsFeedback; }
 			}
 
 		}
@@ -232,7 +247,6 @@ int main(void)
 		// Tremelo params
 		bcL.SetDepth(pot4Value * 0.61f);
 		bcR.SetDepth(pot4Value * 0.6f);
-		//bcR.SetFreq(pot4Value * 0.5f);
 
 		// Set the wet and dry mix
 		wetAmplitude = pot2Value;
