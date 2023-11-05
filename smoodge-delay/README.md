@@ -19,6 +19,7 @@ Nik Ansell (gamecat69)
 0.2     Nik Ansell      Updated Smoodge Effect
 0.3     Nik Ansell      Added tape effects to smoodge parameter
 0.4     Nik Ansell      Tweaked the behaviour of the smoodge effect
+0.5     Nik Ansell      Added alt firmware (CV2 controls Smoodge instead of Feedback)
 
 ## Description
 
@@ -31,7 +32,7 @@ Nik Ansell (gamecat69)
 | P3      | Delay Time (See Usage below)      |
 | P4      | Smoodge (see notes above)      |
 | CV1     | Input Clock      |
-| CV2     | Delay Feedback (Repeats) Summed with P1     |
+| CV2     | Delay Feedback (Repeats) Summed with P1. Or Smoodge if running alt firmware     |
 
 ### Usage
 
