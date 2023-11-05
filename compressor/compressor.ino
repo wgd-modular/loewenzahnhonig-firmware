@@ -5,42 +5,28 @@ DaisyHardware hw;
 size_t num_channels;
 float sample_rate;
 
-// Compressor parameters
-float threshold = 0.5f;     // Threshold for compression (adjust as needed)
-float ratio = 4.0f;         // Compression ratio (4:1 in this example)
-float attackTime = 10.0f;   // Attack time in milliseconds
-float releaseTime = 100.0f; // Release time in milliseconds
+Compressor DSY_SDRAM_BSS comp; // Use the DaisyDuino Compressor
 
-// Compressor state variables
-float gain = 1.0f;          // Current gain
-float envelope = 0.0f;      // Envelope follower value
-float alphaAttack;          // Attack coefficient
-float alphaRelease;         // Release coefficient
-
-void callback(float **in, float **out, size_t size) {
-  for (size_t i = 0; i < size; i++) {
-    // Calculate the envelope follower value (rms)
-    float input = 0.5f * (in[0][i] + in[1][i]); // Average of left and right channels
-    envelope = (1.0f - alphaRelease) * fabs(input) + alphaRelease * envelope;
-
-    // Calculate the gain reduction based on the envelope and threshold
-    float reduction = 1.0f;
-    if (envelope > threshold) {
-      reduction = 1.0f - ((envelope - threshold) / (ratio * (envelope - threshold) + threshold));
-    }
-
-    // Apply the gain reduction
-    gain = 1.0f / reduction;
-
-    // Apply gain to the output
-    out[0][i] = in[0][i] * gain;
-    out[1][i] = in[1][i] * gain;
-  }
-}
+static float dryLevel, wetLevel, threshold, ratio;
 
 float CtrlVal(uint8_t pin) {
   analogReadResolution(16);
   return (analogRead(pin)) / 65535.f;
+}
+
+void callback(float **in, float **out, size_t size) {
+  float dryL, dryR, compL, compR;
+
+  for (size_t i = 0; i < size; i++) {
+    dryL = in[0][i];
+    dryR = in[1][i];
+    
+    compL = comp.Process(dryL); // Apply compression to the left channel
+    compR = comp.Process(dryR); // Apply compression to the right channel
+
+    out[0][i] = (dryL * dryLevel) + compL * wetLevel;
+    out[1][i] = (dryR * dryLevel) + compR * wetLevel;
+  }
 }
 
 void setup() {
@@ -48,19 +34,20 @@ void setup() {
   num_channels = hw.num_channels;
   sample_rate = DAISY.get_samplerate();
 
-  alphaAttack = exp(-1.0f / (attackTime * 0.001f * sample_rate));
-  alphaRelease = exp(-1.0f / (releaseTime * 0.001f * sample_rate));
+  comp.Init(sample_rate); // Initialize the compressor
+  comp.SetThreshold(-30.0f); // Set a reasonable threshold in dB (adjust as needed)
+  comp.SetRatio(4.0f); // Set compression ratio (e.g., 4:1)
+  
+  wetLevel = 0.1f;
   DAISY.begin(callback);
 }
 
 void loop() {
-  // Read analog inputs for parameter adjustment
-  threshold = 0.2f + CtrlVal(A0) * 0.8f;         // Adjust threshold from 0.2 to 1.0
-  ratio = 2.0f + CtrlVal(A1) * 6.0f;             // Adjust ratio from 2.0 to 8.0
-  attackTime = 5.0f + CtrlVal(A2) * 100.0f;      // Adjust attack time from 5ms to 105ms
-  releaseTime = 50.0f + CtrlVal(A3) * 200.0f;    // Adjust release time from 50ms to 250ms
+  threshold = -20.0f + CtrlVal(A2) * 30.0f; // Adjust threshold from -20 to 10 dB
+  ratio = 1.0f + CtrlVal(A3) * 19.0f; // Adjust ratio from 1.0 to 20.0
+  dryLevel = CtrlVal(A0); // Control dry level
+  wetLevel = CtrlVal(A1); // Control wet level
 
-  // Recalculate coefficients based on updated parameters
-  alphaAttack = exp(-1.0f / (attackTime * 0.001f * sample_rate));
-  alphaRelease = exp(-1.0f / (releaseTime * 0.001f * sample_rate));
+  comp.SetThreshold(threshold); // Update the threshold
+  comp.SetRatio(ratio); // Update the ratio
 }
