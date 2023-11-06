@@ -7,7 +7,7 @@ float sample_rate;
 
 Compressor DSY_SDRAM_BSS comp; // Use the DaisyDuino Compressor
 
-static float dryLevel, wetLevel, threshold, ratio;
+static float attack, rel, threshold, ratio;
 
 float CtrlVal(uint8_t pin) {
   analogReadResolution(16);
@@ -24,8 +24,8 @@ void callback(float **in, float **out, size_t size) {
     compL = comp.Process(dryL); // Apply compression to the left channel
     compR = comp.Process(dryR); // Apply compression to the right channel
 
-    out[0][i] = (dryL * dryLevel) + compL * wetLevel;
-    out[1][i] = (dryR * dryLevel) + compR * wetLevel;
+    out[0][i] = compL;
+    out[1][i] = compR;
   }
 }
 
@@ -35,19 +35,21 @@ void setup() {
   sample_rate = DAISY.get_samplerate();
 
   comp.Init(sample_rate); // Initialize the compressor
-  comp.SetThreshold(-30.0f); // Set a reasonable threshold in dB (adjust as needed)
+  comp.SetThreshold(-40.0f); // Set a reasonable threshold in dB (adjust as needed)
   comp.SetRatio(4.0f); // Set compression ratio (e.g., 4:1)
+  comp.AutoMakeup(false);
   
-  wetLevel = 0.1f;
   DAISY.begin(callback);
 }
 
 void loop() {
-  threshold = -20.0f + CtrlVal(A2) * 30.0f; // Adjust threshold from -20 to 10 dB
-  ratio = 1.0f + CtrlVal(A3) * 19.0f; // Adjust ratio from 1.0 to 20.0
-  dryLevel = CtrlVal(A0); // Control dry level
-  wetLevel = CtrlVal(A1); // Control wet level
+  threshold = -35.0f + CtrlVal(A2) * 35.0f; // Adjust threshold from -35 to 0 dB
+  ratio = 1.0f + CtrlVal(A3) * 39.9f; // Adjust ratio from 1.0 to 40.0
+  attack = CtrlVal(A0) * 9.9f; // Control attack
+  rel = CtrlVal(A1)* 9.9f; // Control release
 
   comp.SetThreshold(threshold); // Update the threshold
   comp.SetRatio(ratio); // Update the ratio
+  comp.SetAttack(attack);
+  comp.SetRelease(rel);
 }
