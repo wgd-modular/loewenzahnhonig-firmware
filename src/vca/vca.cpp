@@ -7,6 +7,8 @@ using namespace daisysp;
 using namespace loewy;
 
 /*
+ * Author: Ben van der Burgh
+ *
  * This firmware lets the module act as a simple dual VCA.
  *
  * Pot 1: left offset
