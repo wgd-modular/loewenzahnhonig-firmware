@@ -7,3 +7,6 @@
 [submodule "lib/libDaisy"]
 	path = lib/libDaisy
 	url = https://github.com/electro-smith/libDaisy.git
+[submodule "lib/eurorack"]
+	path = lib/eurorack
+	url = https://github.com/pichenettes/eurorack.git
