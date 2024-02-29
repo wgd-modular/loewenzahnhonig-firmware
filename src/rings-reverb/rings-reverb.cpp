@@ -1,8 +1,10 @@
 #include "daisy_seed.h"
 #include "rings/dsp/fx/reverb.h"
+#include "../../lib/loewy.h"
 
 using namespace rings;
 using namespace daisy;
+using namespace loewy;
 
 Reverb reverb;
 uint16_t reverb_buffer[65536];
@@ -53,13 +55,13 @@ int main(void) {
     hw.StartAudio(AudioCallback);
 
     while (1) {
-        float diffusion_cv = 1 - hw.adc.GetFloat(4);
-        float time_cv = 1 - hw.adc.GetFloat(5);
+        float diffusion_cv = 1 - hw.adc.GetFloat(Loewy::CV::CV_1);
+        float time_cv = 1 - hw.adc.GetFloat(Loewy::CV::CV_2);
 
-        float wet = hw.adc.GetFloat(0);
-        float lp = hw.adc.GetFloat(1);
-        float diffusion = hw.adc.GetFloat(2);
-        float time = hw.adc.GetFloat(3);
+        float wet = hw.adc.GetFloat(Loewy::Pot::POT_1);
+        float lp = hw.adc.GetFloat(Loewy::Pot::POT_2);
+        float diffusion = hw.adc.GetFloat(Loewy::Pot::POT_3);
+        float time = hw.adc.GetFloat(Loewy::Pot::POT_4);
 
         reverb.set_amount(wet);
         reverb.set_lp(lp);
