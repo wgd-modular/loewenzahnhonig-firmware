@@ -6,7 +6,7 @@ A repository to collect different firmwares for the daisy-based Löwenzahnhonig 
 
 ## Pre-compiled firmware
 
-All firmwares have been pre-compiled into binaries that are ready to be uploaded to the Daisy Seed. You can find them in the `bin` folder of this repository.
+All firmwares have been pre-compiled into binaries that are ready to be uploaded to the Daisy Seed. You can find them in the `bin` folder of this repository. Simply open the [Daisy Web Flasher](https://electro-smith.github.io/Programmer/) via Google Chrome and upload the `.bin` file and flash your seed.
 
 
 ## Controls
