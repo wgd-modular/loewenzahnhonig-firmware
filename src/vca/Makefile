@@ -4,10 +4,10 @@ TARGET = vca
 USE_DAISYSP_LGPL=1
 
 # Sources
-CPP_SOURCES = vca.cpp
+CPP_SOURCES = vca.cpp ../../lib/loewy.cpp
 
 # Library Locations
-LIBDAISY_DIR = ../../lib/libDaisy
+LIBDAISY_DIR = ../../../libDaisy
 DAISYSP_DIR = ../../lib/DaisySP
 
 # Core location, and generic Makefile.
