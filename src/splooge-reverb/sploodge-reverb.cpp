@@ -1,8 +1,9 @@
-#include "daisy_seed.h"
+#include "../../lib/loewy.h"
+#include "../../lib/utils.h"
 #include "daisysp.h"
 
-using namespace daisy;
 using namespace daisysp;
+using namespace loewy;
 
 /*
 Signal flow:
@@ -12,7 +13,7 @@ Wet/DryMix --> OuL + OutR
 
 */
 
-DaisySeed hw;
+Loewy hardware;
 
 // Create DSP objects
 static PitchShifter pitch_shifter;
@@ -27,17 +28,11 @@ static Balance balL;
 static Balance balR;
 
 // Init vars
-float dryAmplitude, wetAmplitude, sample_rate;
-float delayTimeSecs, delayOutL, delayOutR, delayFeedback;
+float dryAmplitude, wetAmplitude, delayTimeSecs, delayOutL, delayOutR, delayFeedback;
 float dryL, dryR, verbL, verbR, chorusL, chorusR, pitchShifter1, pitchShifter2,
     pitchShifterLR, pot4Value;
 float reverbLpFreqControl, reverbLpFreq;
 float dryWetMixL, dryWetMixR;
-
-// Function to set value n to within the lower and upper limits
-float clamp(float n, float lower, float upper) {
-  return n <= lower ? lower : n >= upper ? upper : n;
-}
 
 void AudioCallback(AudioHandle::InputBuffer in, AudioHandle::OutputBuffer out,
                    size_t size) {
@@ -103,13 +98,12 @@ void AudioCallback(AudioHandle::InputBuffer in, AudioHandle::OutputBuffer out,
 }
 
 int main(void) {
-  // Init hardware
-  hw.Configure();
-  hw.Init();
-  hw.SetAudioBlockSize(4);
-  sample_rate = hw.AudioSampleRate();
+  Loewy::Config config;
+  config.audio_block_size = 4;
+  hardware.Init(config);
 
   // Init DSP
+  float sample_rate = hardware.GetSampleRate();
   pitch_shifter.Init(sample_rate);
   chorus.Init(sample_rate);
   verb.Init(sample_rate);
@@ -125,26 +119,14 @@ int main(void) {
   dell.SetDelay(delayTimeSecs);
   delr.SetDelay(delayTimeSecs - 0.01f);
 
-  // Configure, init and start listening on the ADC pins for each pot and CV
-  // input
-  AdcChannelConfig adcConfig[6];
-  adcConfig[0].InitSingle(hw.GetPin(15));
-  adcConfig[1].InitSingle(hw.GetPin(16));
-  adcConfig[2].InitSingle(hw.GetPin(17));
-  adcConfig[3].InitSingle(hw.GetPin(18));
-  adcConfig[4].InitSingle(hw.GetPin(19));
-  adcConfig[5].InitSingle(hw.GetPin(20));
-  hw.adc.Init(adcConfig, 6);
-  hw.adc.Start();
-
-  //	Start audio callback thread
-  hw.StartAudio(AudioCallback);
+  hardware.StartAudio(AudioCallback);
 
   // Main loop to set parameters based on pot and CV controls
   while (1) {
-    // Read CV values from CV inputs (0.0 - 1.0)
-    float cv1 = 1 - hw.adc.GetFloat(4);
-    float cv2 = 1 - hw.adc.GetFloat(5);
+    hardware.ProcessControls();
+
+    float cv1 = hardware.GetCV1();
+    float cv2 = hardware.GetCV2();
 
     // Set chorus params
     chorus.SetLfoFreq(.33f, .2f);
@@ -152,16 +134,15 @@ int main(void) {
     chorus.SetLfoDepth(1.f, 1.f);
     chorus.SetFeedback(0.75f, 0.75f);
 
-    //	Sum the CV2 with Pot4 and limit range to 0.0 - 1.0
-    pot4Value = clamp(cv2 + hw.adc.GetFloat(3), 0.0f, 1.0f);
+    pot4Value = clamp(cv2 + hardware.GetPot4(), 0.0f, 1.0f);
 
     // Set the wet and dry mix
-    wetAmplitude = hw.adc.GetFloat(1);
+    wetAmplitude = hardware.GetPot2();
     dryAmplitude = 1 - wetAmplitude;
 
     // Update reverb params based on controls
-    verb.SetFeedback(0.1 + (0.8 * hw.adc.GetFloat(0)));
-    reverbLpFreqControl = clamp(cv1 + hw.adc.GetFloat(2), 0.f, 1.f);
+    verb.SetFeedback(0.1 + (0.8 * hardware.GetPot1()));
+    reverbLpFreqControl = clamp(cv1 + hardware.GetPot3(), 0.f, 1.f);
     const float reverbLpFreqMin = log(100.f);
     const float reverbLpFreqMax = log(28000.f);
     reverbLpFreq = exp(reverbLpFreqMin + (reverbLpFreqControl *
@@ -169,10 +150,10 @@ int main(void) {
     verb.SetLpFreq(reverbLpFreq);
 
     // Set Filter params
-    filtL.SetFreq(500.0 * hw.adc.GetFloat(2));
+    filtL.SetFreq(500.0 * hardware.GetPot3());
     filtL.SetRes(0.1);
     filtL.SetDrive(0.6);
-    filtR.SetFreq(500.0 * hw.adc.GetFloat(2));
+    filtR.SetFreq(500.0 * hardware.GetPot3());
     filtR.SetRes(0.1);
     filtR.SetDrive(0.6);
   }

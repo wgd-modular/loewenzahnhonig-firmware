@@ -1,8 +1,7 @@
 #include "../../lib/loewy.h"
-#include "daisy_seed.h"
+#include "../../lib/utils.h"
 #include "daisysp.h"
 
-using namespace daisy;
 using namespace daisysp;
 using namespace loewy;
 
@@ -29,19 +28,13 @@ using namespace loewy;
 static const float CARRIER_FREQ_MIN = log(1.f);
 static const float CARRIER_FREQ_MAX = log(16000.f);
 
-static DaisySeed hw;
+static Loewy hardware;
 static Oscillator oscTri;
 static Oscillator oscSin;
 static Oscillator oscSq;
-float sample_rate;
 
 // The output signal is calculated as: modulator * carrier
 float frequency, level, shape, blend;
-
-// Function to set value n to within the lower and upper limits
-float clamp(float n, float lower, float upper) {
-  return n <= lower ? lower : n >= upper ? upper : n;
-}
 
 void AudioCallback(AudioHandle::InputBuffer in, AudioHandle::OutputBuffer out,
                    size_t size) {
@@ -75,13 +68,12 @@ void AudioCallback(AudioHandle::InputBuffer in, AudioHandle::OutputBuffer out,
 }
 
 int main(void) {
-  // Init hardware
-  hw.Configure();
-  hw.Init();
-  hw.SetAudioBlockSize(4);
-  sample_rate = hw.AudioSampleRate();
+  Loewy::Config config;
+  config.audio_block_size = 4;
+  hardware.Init(config);
 
   // Initialize oscillators
+  float sample_rate = hardware.GetSampleRate();
   oscTri.Init(sample_rate);
   oscTri.SetWaveform(oscTri.WAVE_TRI);
   oscSin.Init(sample_rate);
@@ -89,38 +81,25 @@ int main(void) {
   oscSq.Init(sample_rate);
   oscSq.SetWaveform(oscSq.WAVE_SQUARE);
 
-  // Configure, init and start listening on the ADC pins for each pot and CV
-  // input
-  AdcChannelConfig adcConfig[6];
-  adcConfig[0].InitSingle(hw.GetPin(15));
-  adcConfig[1].InitSingle(hw.GetPin(16));
-  adcConfig[2].InitSingle(hw.GetPin(17));
-  adcConfig[3].InitSingle(hw.GetPin(18));
-  adcConfig[4].InitSingle(hw.GetPin(19));
-  adcConfig[5].InitSingle(hw.GetPin(20));
-  hw.adc.Init(adcConfig, 6);
-  hw.adc.Start();
-
-  // Start audio callback thread
-  hw.StartAudio(AudioCallback);
+  hardware.StartAudio(AudioCallback);
 
   // Main loop to set parameters based on pot and CV controls
   while (1) {
-    // Read CV values from CV inputs (0.0 - 1.0)
-    float carrierFrequencyCV = 1 - hw.adc.GetFloat(Loewy::CV::CV_1);
-    float carrierLevelCV = 1 - hw.adc.GetFloat(Loewy::CV::CV_2);
+    hardware.ProcessControls();
 
-    shape = hw.adc.GetFloat(Loewy::Pot::POT_1);
-    blend = hw.adc.GetFloat(Loewy::Pot::POT_2);
+    shape = hardware.GetPot1();
+    blend = hardware.GetPot2();
+    float freqOffset = hardware.GetPot3();
+    float levelOffset = hardware.GetPot4();
 
-    float freqOffset = hw.adc.GetFloat(Loewy::Pot::POT_3);
-    float levelOffset = hw.adc.GetFloat(Loewy::Pot::POT_4);
+    float carrierFrequencyCV = hardware.GetCV1();
+    float carrierLevelCV = hardware.GetCV2();
 
     // Logarithmic frequency control
-    float freqControl = clamp(freqOffset + carrierFrequencyCV, 0, 1);
+    float freqControl = clamp(freqOffset + carrierFrequencyCV, 0.0f, 1.0f);
     frequency = exp(CARRIER_FREQ_MIN +
                     (freqControl * (CARRIER_FREQ_MAX - CARRIER_FREQ_MIN)));
 
-    level = clamp(levelOffset + carrierLevelCV, 0, 1);
+    level = clamp(levelOffset + carrierLevelCV, 0.0f, 1.0f);
   }
 }

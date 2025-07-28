@@ -2,10 +2,10 @@
 TARGET = smoodge-delay
 
 # Sources
-CPP_SOURCES = smoodge-delay.cpp
+CPP_SOURCES = smoodge-delay.cpp ../../lib/loewy.cpp
 
 # Library Locations
-LIBDAISY_DIR = ../../lib/libDaisy
+LIBDAISY_DIR = ../../../libDaisy
 DAISYSP_DIR = ../../lib/DaisySP
 
 # Core location, and generic Makefile.

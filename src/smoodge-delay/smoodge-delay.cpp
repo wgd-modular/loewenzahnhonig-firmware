@@ -1,15 +1,14 @@
 #include <math.h>
-
 #include <chrono>
-
-#include "daisy_seed.h"
+#include "../../lib/loewy.h"
+#include "../../lib/utils.h"
 #include "daisysp.h"
 
-using namespace daisy;
 using namespace daisysp;
+using namespace loewy;
 using namespace std::chrono;
 
-DaisySeed hw;
+Loewy hardware;
 
 #define CV_CHANGE_TOLERANCE .01f
 
@@ -22,7 +21,7 @@ static Tremolo bcR;
 static Oscillator osc;
 
 // Init vars
-float sample_rate, dryL, dryR, delayOutL, delayOutR, delayTimeSecsL,
+float dryL, dryR, delayOutL, delayOutR, delayTimeSecsL,
     delayTimeSecsR, delayFeedback;
 float currentDelayL, currentDelayR, cv1, cv2Temp;
 float cv2 = 0.0;
@@ -55,10 +54,7 @@ int genRandInt(int high, int low) {
   return low + std::rand() % (high - low);
 }
 
-// Function to set value n to within the lower and upper limits
-float clamp(float n, float lower, float upper) {
-  return n <= lower ? lower : n >= upper ? upper : n;
-}
+// clamp function now available from utils.h
 
 // Function returns true if value >= threshold
 bool isInputHigh(float threshold, float value) {
@@ -108,14 +104,12 @@ void AudioCallback(AudioHandle::InputBuffer in, AudioHandle::OutputBuffer out,
 }
 
 int main(void) {
-  // Init hardware
-  hw.Configure();
-  hw.Init();
-  hw.SetAudioBlockSize(4);  // number of samples handled per callback
-  hw.SetAudioSampleRate(SaiHandle::Config::SampleRate::SAI_48KHZ);
-  sample_rate = hw.AudioSampleRate();
+  Loewy::Config config;
+  config.audio_block_size = 4;
+  hardware.Init(config);
 
   // Init DSP
+  float sample_rate = hardware.GetSampleRate();
   dell.Init();
   delr.Init();
 
@@ -131,42 +125,32 @@ int main(void) {
   osc.SetAmp(0.0f);
   osc.SetFreq(0.05f);
 
-  // Configure, init and start listening on the ADC pins for each pot and CV
-  // input
-  AdcChannelConfig adcConfig[6];
-  adcConfig[0].InitSingle(hw.GetPin(15));
-  adcConfig[1].InitSingle(hw.GetPin(16));
-  adcConfig[2].InitSingle(hw.GetPin(17));
-  adcConfig[3].InitSingle(hw.GetPin(18));
-  adcConfig[4].InitSingle(hw.GetPin(19));
-  adcConfig[5].InitSingle(hw.GetPin(20));
-  hw.adc.Init(adcConfig, 6);
-  hw.adc.Start();
-
-  hw.StartAudio(AudioCallback);
+  hardware.StartAudio(AudioCallback);
 
   while (1) {
+    hardware.ProcessControls();
+
     // Set some pot and CV values
-    cv1 = 1 - hw.adc.GetFloat(4);
+    cv1 = hardware.GetCV1();
 
     // Set cv2 value only if it has changed by > CV_CHANGE_TOLERANCE
-    cv2Temp = 1 - hw.adc.GetFloat(5);
+    cv2Temp = hardware.GetCV2();
     if (fabsf((cv2Temp - cv2)) > CV_CHANGE_TOLERANCE) {
       cv2 = cv2Temp;
     }
 
-    pot1Value = hw.adc.GetFloat(0);
-    pot2Value = hw.adc.GetFloat(1);
-    pot3Value = hw.adc.GetFloat(2);
+    pot1Value = hardware.GetPot1();
+    pot2Value = hardware.GetPot2();
+    pot3Value = hardware.GetPot3();
 
     if (cv2ControlsFeedback) {
       // Option: Use Pot1 and cv2 for feedback
       delayFeedback = maxFeedback * clamp(cv2 + pot1Value, 0.0f, 1.0f);
-      pot4Value = hw.adc.GetFloat(3);
+      pot4Value = hardware.GetPot4();
     } else {
       // Option: Use pot1 for feedback and cv2 + pot4 for smoodge
       delayFeedback = maxFeedback * pot1Value;
-      pot4Value = clamp(cv2 + hw.adc.GetFloat(3), 0.0f, 1.0f);
+      pot4Value = clamp(cv2 + hardware.GetPot4(), 0.0f, 1.0f);
     }
 
     //	Set the delay time based on Pot3
@@ -208,7 +192,7 @@ int main(void) {
         // rising edge of the incoming gate/trigger
         numClksRx++;
         idx = numClksRx % 3;
-        hw.SetLed(true);
+        hardware.GetHardware().SetLed(true);
 
         if (previousTimestamp != 0) {
           // We have a previous timestamp, get the time between that and now
@@ -241,7 +225,7 @@ int main(void) {
 
       } else {
         // falling edge of the incoming gate/trigger
-        hw.SetLed(false);
+        hardware.GetHardware().SetLed(false);
         // Switch CV2 mode if the gate was high for >= 10 seconds
         // if (durationMs >= 10000) { cv2ControlsFeedback =
         // !cv2ControlsFeedback; }
