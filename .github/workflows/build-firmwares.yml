@@ -1,0 +1,57 @@
+name: Build Firmwares (reusable)
+
+on:
+  workflow_call:
+    inputs:
+      ref:
+        required: false
+        type: string
+        default: ""
+      attach-to-release:
+        required: false
+        type: boolean
+        default: false
+      tag-name:
+        required: false
+        type: string
+        default: ""
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref || github.ref }}
+          submodules: recursive
+
+      - name: Set up ARM toolchain
+        uses: carlosperate/arm-none-eabi-gcc-action@v1
+        with:
+          release: "12.2.Rel1"
+
+      - name: Build libraries
+        run: ./build_libs.sh
+
+      - name: Build firmwares
+        run: python3 ./build_firmwares.py
+
+      - name: Collect binaries
+        run: |
+          mkdir -p artifacts
+          find src -type f -name '*.bin' -path '*/build/*' -exec cp {} artifacts/ \;
+
+      - name: Upload firmware artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: firmwares-${{ github.sha }}
+          path: artifacts/*.bin
+          if-no-files-found: error
+
+      - name: Attach firmwares to release
+        if: ${{ inputs.attach-to-release }}
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ inputs.tag-name }}
+          files: artifacts/*.bin
