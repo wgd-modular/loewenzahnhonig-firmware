@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.2](https://github.com/wgd-modular/loewenzahnhonig-firmware/compare/v0.1.1...v0.1.2) (2026-07-15)
+
+
+### Bug Fixes
+
+* Build Arduino-based firmwares in CI ([#21](https://github.com/wgd-modular/loewenzahnhonig-firmware/issues/21)) ([2507c9b](https://github.com/wgd-modular/loewenzahnhonig-firmware/commit/2507c9bd9df2e00a3849cf4e2ef84b148716041d))
+
 ## [0.1.1](https://github.com/wgd-modular/loewenzahnhonig-firmware/compare/v0.1.0...v0.1.1) (2026-07-14)
 
 
