@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.2.0](https://github.com/wgd-modular/loewenzahnhonig-firmware/compare/v0.1.2...v0.2.0) (2026-09-12)
+
+
+### Features
+
+* Add a web flasher for the module ([#25](https://github.com/wgd-modular/loewenzahnhonig-firmware/issues/25)) ([fee1d6a](https://github.com/wgd-modular/loewenzahnhonig-firmware/commit/fee1d6a360d0d9d4c5257631c69f257c69870abf))
+* Add Nimbus (MI Clouds) firmware ([#13](https://github.com/wgd-modular/loewenzahnhonig-firmware/issues/13)) ([0969d31](https://github.com/wgd-modular/loewenzahnhonig-firmware/commit/0969d31eec0a6ee7ae6d7748caf5ac52f9814b90))
+* add the Cloud Seed firmware ([#23](https://github.com/wgd-modular/loewenzahnhonig-firmware/issues/23)) ([f562750](https://github.com/wgd-modular/loewenzahnhonig-firmware/commit/f56275022f82690207dee4e29bdde6efc7ec70a4))
+
 ## [0.1.2](https://github.com/wgd-modular/loewenzahnhonig-firmware/compare/v0.1.1...v0.1.2) (2026-07-15)
 
 
