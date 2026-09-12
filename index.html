@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Löwenzahnhonig · Web Flasher</title>
+  <meta name="description" content="Flash firmware onto the WGD Modular Löwenzahnhonig straight from your browser.">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bitter:ital,wght@0,500;0,700;1,600;1,700&family=Nunito+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="hero">
+  <div class="plaque">
+    <svg class="mark" viewBox="0 0 86 43" aria-hidden="true"><use href="pattern.svg#leaf"/></svg>
+    <h1>Löwenzahnhonig</h1>
+    <p class="tagline">Firmware for the WGD&nbsp;Modular Löwenzahnhonig, flashed straight from your browser.</p>
+    <p class="release-chip" id="release-chip">checking the latest batch…</p>
+  </div>
+</header>
+
+<main>
+  <section class="howto" aria-label="How to flash">
+    <div class="step"><span class="n">1</span><p>Connect the Daisy&nbsp;Seed over USB, then <strong>hold&nbsp;BOOT</strong> and <strong>tap&nbsp;RESET</strong> to enter the bootloader.</p></div>
+    <div class="step"><span class="n">2</span><p><button id="connect" class="btn btn-outline">Connect</button><span id="device-status">no device connected</span></p></div>
+    <div class="step"><span class="n">3</span><p>Pick a firmware below and press <strong>Flash</strong>. Done in seconds.</p></div>
+  </section>
+
+  <div id="unsupported" class="notice" hidden>
+    This flasher needs WebUSB, which Safari and Firefox don’t offer.
+    Open this page in <strong>Chrome</strong> or <strong>Edge</strong> to flash your module.
+  </div>
+
+  <div id="load-error" class="notice" hidden></div>
+
+  <section id="cards" class="cards" aria-label="Available firmwares"></section>
+
+  <details class="local">
+    <summary>Flash a local .bin instead</summary>
+    <div class="local-body">
+      <p>Handy for builds that haven’t been released yet.</p>
+      <label class="btn btn-outline file-btn">Choose file<input type="file" id="local-file" accept=".bin"></label>
+      <span id="local-name">no file chosen</span>
+      <button id="local-flash" class="btn" disabled>Flash</button>
+      <div class="progress" id="local-progress" hidden><div class="bar"></div><span class="ptext"></span></div>
+    </div>
+  </details>
+</main>
+
+<footer>
+  <div class="comb-divider" aria-hidden="true"></div>
+  <p>
+    <a href="https://github.com/wgd-modular/loewenzahnhonig-firmware">wgd-modular/loewenzahnhonig-firmware</a>
+    · DFU by <a href="https://github.com/devanlai/webdfu">webdfu</a>
+  </p>
+</footer>
+
+<script src="dfu.js"></script>
+<script src="dfuse.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="44" viewBox="0 0 200 44">
+  <defs>
+    <path id="cell" d="M0,-9.5 L8.23,-4.75 L8.23,4.75 L0,9.5 L-8.23,4.75 L-8.23,-4.75 Z"/>
+  </defs>
+
+  <rect width="200" height="44" fill="#FBF1DA"/>
+
+  <g fill="none" stroke-width="1.8">
+    <use href="#cell" x="12.5" y="22" stroke="#D98E2B"/>
+    <use href="#cell" x="37.5" y="22" stroke="#3F7D63"/>
+    <use href="#cell" x="62.5" y="22" stroke="#B4552B"/>
+    <use href="#cell" x="87.5" y="22" stroke="#6A9A3F"/>
+    <use href="#cell" x="112.5" y="22" stroke="#D98E2B"/>
+    <use href="#cell" x="137.5" y="22" stroke="#3F7D63"/>
+    <use href="#cell" x="162.5" y="22" stroke="#B4552B"/>
+    <use href="#cell" x="187.5" y="22" stroke="#6A9A3F"/>
+  </g>
+
+  <g fill="#E7B93A">
+    <circle cx="12.5" cy="22" r="2.6"/>
+    <circle cx="37.5" cy="22" r="2.6"/>
+    <circle cx="62.5" cy="22" r="2.6"/>
+    <circle cx="87.5" cy="22" r="2.6"/>
+    <circle cx="112.5" cy="22" r="2.6"/>
+    <circle cx="137.5" cy="22" r="2.6"/>
+    <circle cx="162.5" cy="22" r="2.6"/>
+    <circle cx="187.5" cy="22" r="2.6"/>
+  </g>
+</svg>
