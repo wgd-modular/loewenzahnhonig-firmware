@@ -121,6 +121,42 @@ function parseReadme(md) {
   return { description, rows };
 }
 
+// A description can carry a markdown link (Nimbus' variants link back to
+// "../nimbus/README.md", Cloud Seed links out to GitHub); render those as
+// real links instead of leaving the raw "[text](url)" in the text.
+
+function escapeHtml(s) {
+  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+}
+
+function resolveReadmeLink(url, folder, tag) {
+  if (/^([a-z][a-z0-9+.-]*:)?\/\//i.test(url) || url.startsWith("mailto:")) return url;
+  if (url.startsWith("#")) return `https://github.com/${REPO}/blob/${tag}/src/${folder}/README.md${url}`;
+  const parts = `src/${folder}/${url}`.split("/");
+  const resolved = [];
+  for (const part of parts) {
+    if (part === "." || part === "") continue;
+    if (part === "..") resolved.pop();
+    else resolved.push(part);
+  }
+  return `https://github.com/${REPO}/blob/${tag}/${resolved.join("/")}`;
+}
+
+function renderInlineLinks(text, folder, tag) {
+  const re = /\[([^\]]+)\]\(([^)]+)\)/g;
+  let out = "";
+  let last = 0;
+  let m;
+  while ((m = re.exec(text))) {
+    out += escapeHtml(text.slice(last, m.index));
+    const href = escapeHtml(resolveReadmeLink(m[2], folder, tag));
+    out += `<a href="${href}" target="_blank" rel="noopener">${escapeHtml(m[1])}</a>`;
+    last = re.lastIndex;
+  }
+  out += escapeHtml(text.slice(last));
+  return out;
+}
+
 /* ---------- cards ---------- */
 
 function buildCard(asset, tag, accent) {
@@ -153,7 +189,9 @@ function buildCard(asset, tag, accent) {
       return;
     }
     const { description, rows } = parseReadme(md);
-    $(".desc", card).textContent = description || "No description available.";
+    const desc = $(".desc", card);
+    if (description) desc.innerHTML = renderInlineLinks(description, readmeFolder(fw), tag);
+    else desc.textContent = "No description available.";
     if (rows.length) {
       const table = $(".controls table", card);
       const [head, ...body] = rows;

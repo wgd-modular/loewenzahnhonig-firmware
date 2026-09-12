@@ -206,6 +206,8 @@ main { max-width: 1060px; margin: 0 auto; padding: 44px 24px 60px; }
 
 .card-body { padding: 18px 22px 20px; display: flex; flex-direction: column; gap: 14px; flex: 1; }
 .desc { margin: 0; line-height: 1.55; font-size: 0.94rem; color: var(--ink-soft); }
+.desc a { color: var(--honey-deep); text-decoration: none; border-bottom: 1.5px dotted var(--line); }
+.desc a:hover { text-decoration: none; color: var(--rust-deep); }
 
 .controls h3 {
   font-family: "Bitter", serif;
