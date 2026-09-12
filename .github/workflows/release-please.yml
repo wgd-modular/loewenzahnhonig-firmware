@@ -29,6 +29,7 @@ jobs:
     with:
       ref: ${{ needs.release-please.outputs.tag_name }}
       attach-to-release: true
+      publish-to-pages: true
       tag-name: ${{ needs.release-please.outputs.tag_name }}
     permissions:
       contents: write

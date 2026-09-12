@@ -11,6 +11,10 @@ on:
         required: false
         type: boolean
         default: false
+      publish-to-pages:
+        required: false
+        type: boolean
+        default: false
       tag-name:
         required: false
         type: string
@@ -65,3 +69,23 @@ jobs:
         with:
           tag_name: ${{ inputs.tag-name }}
           files: artifacts/*.bin
+
+      - name: Publish firmwares to GitHub Pages
+        if: ${{ inputs.publish-to-pages }}
+        env:
+          TAG: ${{ inputs.tag-name }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git fetch origin gh-pages
+          git worktree add /tmp/gh-pages origin/gh-pages
+          mkdir -p "/tmp/gh-pages/firmwares/$TAG"
+          cp artifacts/*.bin "/tmp/gh-pages/firmwares/$TAG/"
+          cd /tmp/gh-pages
+          git add "firmwares/$TAG"
+          if git diff --cached --quiet; then
+            echo "No firmware changes to publish"
+          else
+            git commit -m "chore: publish firmware binaries for $TAG"
+            git push origin HEAD:gh-pages
+          fi

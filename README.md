@@ -4,9 +4,11 @@ A repository to collect different firmwares for the daisy-based Löwenzahnhonig 
 <img src="media/DSC07012.JPG" height="500">
 
 
-## Pre-compiled firmware
+## Flash your module
 
-All firmwares are pre-compiled into binaries that are ready to be uploaded to the Daisy Seed. You can find them attached to the [latest release](https://github.com/wgd-modular/loewenzahnhonig-firmware/releases/latest). Simply open the [Daisy Web Flasher](https://electro-smith.github.io/Programmer/) via Google Chrome and upload the `.bin` file and flash your seed.
+Flash your module straight from the browser with the [Löwenzahnhonig web flasher](https://wgd-modular.github.io/loewenzahnhonig-firmware/). Open it in Google Chrome or Edge, connect the Daisy Seed over USB, hold BOOT and tap RESET to enter the bootloader, then pick a firmware and press flash. It lists every firmware of the latest release together with its controls, and can also flash a local `.bin` you built yourself.
+
+Prefer to grab the raw binaries? Every firmware is pre-compiled and attached to the [latest release](https://github.com/wgd-modular/loewenzahnhonig-firmware/releases/latest).
 
 
 ## Controls
