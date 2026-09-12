@@ -195,10 +195,12 @@ function buildCard(asset, tag, accent) {
     if (rows.length) {
       const table = $(".controls table", card);
       const [head, ...body] = rows;
+      const folder = readmeFolder(fw);
+      const cell = c => renderInlineLinks(c, folder, tag);
       const tr = h => `<tr>${h}</tr>`;
       table.innerHTML =
-        tr(head.map(c => `<th>${c}</th>`).join("")) +
-        body.map(r => tr(r.map(c => `<td>${c}</td>`).join(""))).join("");
+        tr(head.map(c => `<th>${cell(c)}</th>`).join("")) +
+        body.map(r => tr(r.map(c => `<td>${cell(c)}</td>`).join(""))).join("");
       $(".controls", card).hidden = false;
     }
   });

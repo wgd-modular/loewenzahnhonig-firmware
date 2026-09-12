@@ -224,6 +224,8 @@ main { max-width: 1060px; margin: 0 auto; padding: 44px 24px 60px; }
 }
 .controls th { color: var(--ink-soft); font-weight: 600; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.06em; }
 .controls td:first-child { font-weight: 600; white-space: nowrap; width: 1%; }
+.controls a { color: var(--honey-deep); text-decoration: none; border-bottom: 1.5px dotted var(--line); }
+.controls a:hover { color: var(--rust-deep); }
 .controls tr:last-child td { border-bottom: none; }
 
 .card-foot {
