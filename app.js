@@ -17,12 +17,24 @@ async function loadRelease() {
 }
 
 function firmwareName(assetName) {
-  return assetName.replace(/\.bin$/, "");
+  // Arduino-built firmwares (compressor, delay, reverb, shimmer-reverb) are
+  // named after their .ino sketch, so the asset is "name.ino.bin" rather
+  // than the Makefile firmwares' "name.bin".
+  return assetName.replace(/(\.ino)?\.bin$/, "");
+}
+
+// The splooge-reverb firmware's Makefile TARGET (and so its release binary)
+// is "sploodge-reverb", one letter off from its src/ folder.
+const README_FOLDER = { "sploodge-reverb": "splooge-reverb" };
+
+function readmeFolder(fw) {
+  return README_FOLDER[fw] || fw;
 }
 
 async function fetchReadme(fw, tag) {
+  const folder = readmeFolder(fw);
   for (const ref of [tag, "main"]) {
-    const res = await fetch(`https://raw.githubusercontent.com/${REPO}/${ref}/src/${fw}/README.md`);
+    const res = await fetch(`https://raw.githubusercontent.com/${REPO}/${ref}/src/${folder}/README.md`);
     if (res.ok) return res.text();
   }
   return null;
@@ -128,7 +140,7 @@ function buildCard(asset, tag, accent) {
       <div class="progress" hidden><div class="bar"></div><span class="ptext"></span></div>
       <div class="card-foot">
         <a class="readme-link" target="_blank" rel="noopener"
-           href="https://github.com/${REPO}/blob/${tag}/src/${fw}/README.md">Full guide ↗</a>
+           href="https://github.com/${REPO}/blob/${tag}/src/${readmeFolder(fw)}/README.md">Full guide ↗</a>
         <button class="btn flash-btn">Flash</button>
       </div>
     </div>`;
