@@ -121,7 +121,8 @@ program changes, so a pot resting near a boundary stays where it is. A
 change fades the reverb out over 10 ms, clears its memory, loads the program
 and fades the reverb back in: the old tail is cut, the dry signal is never
 interrupted. Pot 1 is read at start-up, so the module comes up with the
-program it points at.
+program it points at; the hysteresis needs a zone to hold on to and only
+takes effect from the first reading on.
 
 ### Pot 2: Mix
 
@@ -129,6 +130,18 @@ An equal-power crossfade between the dry input and the reverb: fully
 counter-clockwise only the input is heard, fully clockwise only the reverb,
 and both are 3 dB down at the centre. The balance between the early
 reflections and the late reverb inside the wet signal comes from the program.
+
+A two-ADC-code margin at each end lets the smoothed control reach exactly
+dry or wet. The range between these margins is continuous and keeps the
+centre at the same position.
+
+How loud the wet signal is at a given mix setting is the program's own
+business: every preset carries the output level the plugin gave its late
+reverb, and those span about 14 dB over the ten (quietest "The 90s Are
+Back", loudest "Through the Looking Glass"), with the early reflections on
+a level of their own. The mix pot does not compensate for this, so changing
+the program at a fixed mix changes how much reverb is heard. The programs
+keep the balance the plugin gave them.
 
 The reverb's wet signal is soft-clipped before it is mixed in. With long decay
 times the reverb builds up well beyond full scale when the source keeps
@@ -139,7 +152,7 @@ codec output conversion then clips it. Allow some input headroom.
 
 ### Pot 3: Decay (with CV 1)
 
-The time in which the late reverb decays by 60 dB, from 50 ms fully
+The nominal 60 dB decay time of the late reverb, from 50 ms fully
 counter-clockwise to 60 s fully clockwise, with the plugin's curve: about
 0.3 s at 9 o'clock, 1.9 s at the centre and 10 s at 3 o'clock. The last part
 of the travel is where the endless washes live.
@@ -147,6 +160,9 @@ of the travel is where the endless washes live.
 The decay sets the feedback gain of every delay line so that all lines, whose
 lengths differ, have the same nominal decay time. Feedback gains ramp across
 an audio block when the decay changes, reducing steps from pot or CV movement.
+The audible tail also depends on the diffusers, the block of feedback delay,
+modulation and damping, so this setting is not an exact broadband decay
+measurement.
 
 CV 1 is added to the pot (0 V adds nothing, full scale adds the whole range),
 with the sum limited to the longest decay. With the pot low, a gate or
@@ -173,7 +189,7 @@ feedback and bypass their damping filters. New notes pass through the dry
 path at the level set by the mix pot. At fully wet, the dry notes are inaudible.
 What was still on its way through the pre-delay and the early reflections when the
 gate went high joins the held tail. When the gate goes low, the decay and
-tone pots take over again and the tail dies away at the set decay time. The
+tone pots take over again and the tail decays with their settings. The
 LED is lit while frozen.
 
 The hold is not perfectly lossless in the modulated programs: interpolation
@@ -268,9 +284,11 @@ requires and the internal SRAM mapped without write allocation. The
 library's README and TECHNICAL.md describe the mechanisms and their measured
 effects.
 
-Measured on this module with the profiling build (`captures/` in the
-library), the programs load the callback as follows, unfrozen, with no
-overload:
+Historical measurements on this module with the profiling build gave the
+following callback loads, unfrozen, with no overload. The library's
+[TECHNICAL.md](../../lib/cloudseed-daisy/TECHNICAL.md#measured-performance)
+identifies the measured image as `623fe82a`; the raw serial captures are not
+committed to the repository.
 
 | Program | Lines per channel (plugin) | Mean load | Peak block |
 |---------|---------------------------:|---------:|-----------:|
@@ -328,8 +346,8 @@ take effect on the same command line.
 | `CLOUDSEED_SRAM_WRITE_ALLOCATE` | 0 | Cache internal SRAM writes (the Cortex-M7 default) instead of write-back without write allocation |
 | `CLOUDSEED_SDRAM_FAST_TIMING` | 0 | The SDRAM's datasheet row/column delays, with a memory test at boot that falls back to the conservative ones (experiment) |
 
-With ARM GCC 16.2, the default build takes 113,420 bytes of the 131,072-byte
-flash; the profiling build takes 127,768 bytes, leaving 3,304 bytes. The
+With ARM GCC 16.2, the default build takes 114,780 bytes of the 131,072-byte
+flash; the profiling build takes 129,128 bytes, leaving 1,944 bytes. The
 default uses 106,240 bytes of DTCM before the stack (the engine, the reverb,
 the sine table and 24 KB of staging memory), 65,504 bytes of ITCM, 489,280
 bytes of AXI SRAM, 294,272 bytes of D2 SRAM and 15,974,400 bytes of SDRAM.
@@ -347,6 +365,9 @@ on the make command line; a changed option rebuilds the firmware.
 The host tests of the reverb, the staging, the engine and the fidelity
 against the plugin's reference live in the library (`lib/cloudseed-daisy/test`,
 see its README).
+
+Run `bash test/mix.sh` in this folder for the firmware's mix regression,
+including endpoint settling through the checked-out libDaisy control code.
 
 ## License
 
