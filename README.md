@@ -59,4 +59,6 @@ This will compile the VCA firmware and place its output in the `build` subdirect
 
 New firmwares for the Löwenzahnhonig module are always very welcome. Feel free to open a PR anytime. Each new firmware should be located in a new sub-folder with the same name as the `.ino` file together with a `README.md` file telling users about the controls and other possibly interesting stuff.
 
-Make-based firmwares can use the small hardware abstraction in `lib/loewy.h`: it initializes the Daisy Seed and the ADC channels of the four pots and two CV inputs, and smooths their readings. `src/vca/vca.cpp` is a minimal example of how to use it.
+Make-based firmwares can use the small hardware abstraction in `lib/loewy.h`: it initializes the Daisy Seed and the ADC channels of the four pots and two CV inputs, and smooths their readings. `src/vca/vca.cpp` is a minimal example of how to use it. It also applies the Seed's system settings from the `lib/cloudseed-daisy` submodule (the 480 MHz clock where the silicon allows it, the SDRAM's refresh count and timings, the cache policies), which is why every firmware needs the submodules initialized.
+
+The Cloud Seed firmware (`src/cloudseed`) is the reference application of the [cloudseed-daisy](https://github.com/benjaminvdb/cloudseed-daisy) library, a Cloud Seed reverb for any Daisy Seed; the library is a submodule in `lib/cloudseed-daisy`.

@@ -1,5 +1,10 @@
 #include "loewy.h"
 
+// The Seed's system settings (the 480 MHz clock, the cache policies, the
+// SDRAM's refresh and timings) come from the cloudseed-daisy library, which
+// keeps them for any Daisy Seed firmware; see its seed_system.h.
+#include "cloudseed-daisy/src/cloudseed_daisy/seed_system.h"
+
 namespace loewy {
 
 namespace {
@@ -17,11 +22,28 @@ void Loewy::Init() { Init(Config()); }
 void Loewy::Init(const Config& config) {
   config_ = config;
 
-  hw_.Init();
+  hw_.Init(config_.boost && cloudseed_daisy::SupportsBoost());
+  if (config_.sdram_write_allocate)
+    cloudseed_daisy::ConfigureSdramWriteAllocate();
+  if (!config_.sram_write_allocate)
+    cloudseed_daisy::ConfigureSramNoWriteAllocate();
+  // libDaisy's SDRAM driver refreshes the Seed's part too slowly for its
+  // datasheet and misses two of its minimum timings; program the part's own
+  // values now that hw_.Init() has initialized the SDRAM.
+  ConfigureSdramRefresh();
+  SetSdramTiming(config_.sdram_datasheet_timing);
   hw_.SetAudioBlockSize(config_.audio_block_size);
 
   InitAdc();
   InitControls();
+}
+
+void Loewy::SetSdramTiming(bool datasheet) {
+  cloudseed_daisy::SetSdramTiming(datasheet);
+}
+
+void Loewy::ConfigureSdramRefresh() {
+  cloudseed_daisy::ConfigureSdramRefresh();
 }
 
 void Loewy::InitAdc() {

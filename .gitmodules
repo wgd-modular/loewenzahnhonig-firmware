@@ -7,3 +7,6 @@
 [submodule "lib/libDaisy"]
 	path = lib/libDaisy
 	url = https://github.com/electro-smith/libDaisy.git
+[submodule "lib/cloudseed-daisy"]
+	path = lib/cloudseed-daisy
+	url = https://github.com/benjaminvdb/cloudseed-daisy.git
