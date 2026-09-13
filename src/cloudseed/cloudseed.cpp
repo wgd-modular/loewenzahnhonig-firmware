@@ -5,17 +5,23 @@
 
 #include "../../lib/loewy.h"
 #include "../../lib/utils.h"
-#include "cloudseed/fdlibm_trig.h"
 #include "cloudseed/presets.h"
 #include "cloudseed/utils.h"
 #include "cloudseed_daisy/engine.h"
 #include "daisysp.h"
+#include "mix.h"
+#include "programs.h"
 
 using daisy::AudioHandle;
 using daisy::System;
 using namespace loewy;
 using cloudseed::Parameter;
 using cloudseed_daisy::Engine;
+using cloudseed_firmware::CrossfadeCos;
+using cloudseed_firmware::CrossfadeSin;
+using cloudseed_firmware::kNumPrograms;
+using cloudseed_firmware::kPrograms;
+using cloudseed_firmware::MixPosition;
 
 /*
  * Author: Ben van der Burgh
@@ -48,32 +54,15 @@ using cloudseed_daisy::Engine;
 #define CLOUDSEED_SRAM_WRITE_ALLOCATE 0  // internal SRAM: cache writes
 #endif
 #ifndef CLOUDSEED_SDRAM_FAST_TIMING
-#define CLOUDSEED_SDRAM_FAST_TIMING 0  // datasheet SDRAM timings, tested at boot
+#define CLOUDSEED_SDRAM_FAST_TIMING 0  // datasheet timings, tested at boot
 #endif
 
 namespace {
 
-// The programs in the order of the zones of Pot 1: the plugin's nine factory
-// programs as spaces, then washes, then echoes, and the successor's plate
-// appended, so the nine keep the numbers the logs and the hardware baselines
-// have used. Each with the late delay lines per channel it runs with: the
-// programs' own counts (see the library's TECHNICAL.md, "Measured
-// performance"). The build's CLOUDSEED_MAX_LINES caps them, and the
-// engine's overload recovery still reduces a program that exceeds the
-// budget.
-const cloudseed_daisy::Program kPrograms[] = {
-    {&cloudseed::presets::kSmallRoom, 3},
-    {&cloudseed::presets::kMediumSpace, 3},
-    {&cloudseed::presets::kNoiseInTheHallway, 8},
-    {&cloudseed::presets::kHyperplane, 9},
-    {&cloudseed::presets::kRubiKaFields, 4},
-    {&cloudseed::presets::kThroughTheLookingGlass, 12},
-    {&cloudseed::presets::kThe90sAreBack, 9},
-    {&cloudseed::presets::kDullEchoes, 12},
-    {&cloudseed::presets::kChorusDelay, 12},
-    {&cloudseed::presets::kDarkPlate, 12},
-};
-constexpr int kNumPrograms = sizeof(kPrograms) / sizeof(kPrograms[0]);
+// The engine wants the programs as its own type, which lives in engine.h
+// and so cannot be used by the host tests; main() fills this from the
+// firmware's table in programs.h before the engine is initialized.
+cloudseed_daisy::Program engine_programs[cloudseed_firmware::kNumPrograms];
 
 // Pot 1 is split into kNumPrograms zones of equal width. The pot has to
 // travel this fraction of a zone past a boundary before the program
@@ -96,20 +85,6 @@ static inline float SoftClip(float x) {
   constexpr int32_t kThreeBits = 0x40400000;
   if ((bits & 0x7fffffff) > kThreeBits) x = bits < 0 ? -3.f : 3.f;
   return daisysp::SoftLimit(x);
-}
-
-constexpr float kHalfPi = 1.5707963f;
-
-// The equal-power crossfade gains of a mix position, through the library's
-// sin() and cos() (cloudseed/fdlibm_trig.h): libm's sinf() and cosf() then
-// stay out of the image.
-inline float CrossfadeCos(float mix) {
-  return static_cast<float>(
-      cloudseed::trig::Cos(static_cast<double>(mix) * kHalfPi));
-}
-inline float CrossfadeSin(float mix) {
-  return static_cast<float>(
-      cloudseed::trig::Sin(static_cast<double>(mix) * kHalfPi));
 }
 
 Loewy hardware;
@@ -140,15 +115,27 @@ void OnProgramLoaded(cloudseed::ReverbController& reverb, void*) {
   reverb.SetParameter(Parameter::CutoffEnabled, 1.0);
 }
 
-// Zone of Pot 1, with hysteresis around the zone boundaries.
+int ClampZone(int zone) {
+  if (zone < 0) return 0;
+  if (zone >= kNumPrograms) return kNumPrograms - 1;
+  return zone;
+}
+
+// Zone of Pot 1 without hysteresis: the zone the pot points at. For the first
+// reading, which has no zone to hold on to yet.
+int ProgramZone(float pot) {
+  return ClampZone(static_cast<int>(floorf(pot * kNumPrograms)));
+}
+
+// Zone of Pot 1, with hysteresis around the zone boundaries: the pot has to
+// leave the zone it is in (quantized_program) by kProgramHysteresis before
+// the zone changes.
 int QuantizeProgram(float pot) {
   const float value = pot * kNumPrograms - 0.5f;
   const float sign = value > static_cast<float>(quantized_program) ? -1.f : 1.f;
-  int zone = static_cast<int>(floorf(value + sign * kProgramHysteresis + 0.5f));
-  if (zone < 0) zone = 0;
-  if (zone >= kNumPrograms) zone = kNumPrograms - 1;
-  quantized_program = zone;
-  return zone;
+  quantized_program = ClampZone(
+      static_cast<int>(floorf(value + sign * kProgramHysteresis + 0.5f)));
+  return quantized_program;
 }
 
 void AudioCallback(AudioHandle::InputBuffer in, AudioHandle::OutputBuffer out,
@@ -157,7 +144,7 @@ void AudioCallback(AudioHandle::InputBuffer in, AudioHandle::OutputBuffer out,
   hardware.ProcessControls();
   engine.RequestProgram(QuantizeProgram(hardware.GetPot1()));
 
-  const float mix = hardware.GetPot2();
+  const float mix = MixPosition(hardware.GetPot2());
   const float decay = clamp(hardware.GetPot3() + hardware.GetCV1(), 0.f, 1.f);
   const float tone = hardware.GetPot4();
   engine.SetParameter(Parameter::LineDecay, decay, kPotThreshold);
@@ -177,12 +164,16 @@ void AudioCallback(AudioHandle::InputBuffer in, AudioHandle::OutputBuffer out,
   // the ADC sees them (raw) and as the firmware uses them (flipped and
   // smoothed), to tell an unpatched jack from a patched one; then the
   // decay and the mix the callback derived.
-  const float controls[] = {
-      hardware.GetPot1(), hardware.GetPot2(),
-      hardware.GetPot3(), hardware.GetPot4(),
-      hardware.GetCV1(),  hardware.GetCVRaw(Loewy::CV::CV_1),
-      hardware.GetCV2(),  hardware.GetCVRaw(Loewy::CV::CV_2),
-      decay,              mix};
+  const float controls[] = {hardware.GetPot1(),
+                            hardware.GetPot2(),
+                            hardware.GetPot3(),
+                            hardware.GetPot4(),
+                            hardware.GetCV1(),
+                            hardware.GetCVRaw(Loewy::CV::CV_1),
+                            hardware.GetCV2(),
+                            hardware.GetCVRaw(Loewy::CV::CV_2),
+                            decay,
+                            mix};
   engine.SetProfileControls(controls, sizeof(controls) / sizeof(controls[0]));
 #endif
 
@@ -210,8 +201,10 @@ void AudioCallback(AudioHandle::InputBuffer in, AudioHandle::OutputBuffer out,
     for (size_t i = 0; i < size; i++) {
       current_dry_gain += dry_step;
       current_wet_gain += wet_step;
-      out[0][i] = current_dry_gain * in[0][i] + current_wet_gain * SoftClip(wet_l[i]);
-      out[1][i] = current_dry_gain * in[1][i] + current_wet_gain * SoftClip(wet_r[i]);
+      out[0][i] =
+          current_dry_gain * in[0][i] + current_wet_gain * SoftClip(wet_l[i]);
+      out[1][i] =
+          current_dry_gain * in[1][i] + current_wet_gain * SoftClip(wet_r[i]);
     }
   }
   current_dry_gain = dry_gain;
@@ -258,14 +251,24 @@ int main(void) {
   }
 #endif
 
+  // Hand the engine the programs in its own type.
+  for (int i = 0; i < kNumPrograms; i++) {
+    engine_programs[i].preset = kPrograms[i].preset;
+    engine_programs[i].lines = kPrograms[i].lines;
+  }
+
   Engine::Config engine_config;
-  engine_config.programs = kPrograms;
+  engine_config.programs = engine_programs;
   engine_config.program_count = kNumPrograms;
   engine_config.sample_rate = hardware.GetSampleRate();
   engine_config.block_size = hardware.GetBlockSize();
   engine_config.on_program_loaded = OnProgramLoaded;
-  if (!engine.Init(engine_config)) {
-    // The delay memory is too small for this sample rate: blink forever.
+  // wet_l and wet_r hold one block; the engine also accepts a multiple of
+  // kMaxBlockSize, which would not fit them.
+  if (engine_config.block_size > sizeof(wet_l) / sizeof(wet_l[0]) ||
+      !engine.Init(engine_config)) {
+    // The block does not fit the callback's buffers, or the delay memory is
+    // too small for this sample rate: blink forever.
     while (1) {
       hardware.SetLed(true);
       System::Delay(100);
@@ -275,14 +278,18 @@ int main(void) {
   }
 
   // Let the smoothed pot readings settle, then load the program Pot 1 points
-  // at before the audio starts.
+  // at before the audio starts. That first zone is taken without hysteresis:
+  // measured against a zone the module has not been in, the hysteresis would
+  // start it a zone below the pot over the first quarter of every zone.
   for (int i = 0; i < 100; i++) {
     hardware.ProcessControls();
     System::Delay(1);
   }
-  engine.Start(QuantizeProgram(hardware.GetPot1()));
-  current_dry_gain = CrossfadeCos(hardware.GetPot2());
-  current_wet_gain = CrossfadeSin(hardware.GetPot2());
+  quantized_program = ProgramZone(hardware.GetPot1());
+  engine.Start(quantized_program);
+  const float mix = MixPosition(hardware.GetPot2());
+  current_dry_gain = CrossfadeCos(mix);
+  current_wet_gain = CrossfadeSin(mix);
 
 #if CLOUDSEED_PROFILE
   engine.PrintBuild(Print);
