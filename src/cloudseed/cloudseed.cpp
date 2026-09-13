@@ -10,6 +10,7 @@
 #include "cloudseed_daisy/engine.h"
 #include "daisysp.h"
 #include "mix.h"
+#include "programs.h"
 
 using daisy::AudioHandle;
 using daisy::System;
@@ -18,6 +19,8 @@ using cloudseed::Parameter;
 using cloudseed_daisy::Engine;
 using cloudseed_firmware::CrossfadeCos;
 using cloudseed_firmware::CrossfadeSin;
+using cloudseed_firmware::kNumPrograms;
+using cloudseed_firmware::kPrograms;
 using cloudseed_firmware::MixPosition;
 
 /*
@@ -56,27 +59,10 @@ using cloudseed_firmware::MixPosition;
 
 namespace {
 
-// The programs in the order of the zones of Pot 1: the plugin's nine factory
-// programs as spaces, then washes, then echoes, and the successor's plate
-// appended, so the nine keep the numbers the logs and the hardware baselines
-// have used. Each with the late delay lines per channel it runs with: the
-// programs' own counts (see the library's TECHNICAL.md, "Measured
-// performance"). The build's CLOUDSEED_MAX_LINES caps them, and the
-// engine's overload recovery still reduces a program that exceeds the
-// budget.
-const cloudseed_daisy::Program kPrograms[] = {
-    {&cloudseed::presets::kSmallRoom, 3},
-    {&cloudseed::presets::kMediumSpace, 3},
-    {&cloudseed::presets::kNoiseInTheHallway, 8},
-    {&cloudseed::presets::kHyperplane, 9},
-    {&cloudseed::presets::kRubiKaFields, 4},
-    {&cloudseed::presets::kThroughTheLookingGlass, 12},
-    {&cloudseed::presets::kThe90sAreBack, 9},
-    {&cloudseed::presets::kDullEchoes, 12},
-    {&cloudseed::presets::kChorusDelay, 12},
-    {&cloudseed::presets::kDarkPlate, 12},
-};
-constexpr int kNumPrograms = sizeof(kPrograms) / sizeof(kPrograms[0]);
+// The engine wants the programs as its own type, which lives in engine.h
+// and so cannot be used by the host tests; main() fills this from the
+// firmware's table in programs.h before the engine is initialized.
+cloudseed_daisy::Program engine_programs[cloudseed_firmware::kNumPrograms];
 
 // Pot 1 is split into kNumPrograms zones of equal width. The pot has to
 // travel this fraction of a zone past a boundary before the program
@@ -265,8 +251,14 @@ int main(void) {
   }
 #endif
 
+  // Hand the engine the programs in its own type.
+  for (int i = 0; i < kNumPrograms; i++) {
+    engine_programs[i].preset = kPrograms[i].preset;
+    engine_programs[i].lines = kPrograms[i].lines;
+  }
+
   Engine::Config engine_config;
-  engine_config.programs = kPrograms;
+  engine_config.programs = engine_programs;
   engine_config.program_count = kNumPrograms;
   engine_config.sample_rate = hardware.GetSampleRate();
   engine_config.block_size = hardware.GetBlockSize();

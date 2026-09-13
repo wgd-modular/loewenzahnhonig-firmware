@@ -192,6 +192,16 @@ gate went high joins the held tail. When the gate goes low, the decay and
 tone pots take over again and the tail decays with their settings. The
 LED is lit while frozen.
 
+Freezing changes the wet level, by an amount that belongs to the program.
+Eight of the ten hold within a decibel or two of where they were. "The 90s
+Are Back" drops 5 to 8 dB. "Dark Plate" moves the most, and in both
+directions: as much as 13 dB quieter with a bright source, a short decay and
+the tone pot down, and about a decibel louder with the decay and tone pots at
+maximum. The firmware does not correct this - the step moves too far with the
+pots and with what you feed the module for a fixed correction to fit. The
+library's [TECHNICAL.md](../../lib/cloudseed-daisy/TECHNICAL.md) explains
+where it comes from, and `test/freeze.sh` measures each program's step.
+
 The hold is not perfectly lossless in the modulated programs: interpolation
 attenuates highs, and time-varying delay reads can change energy. The test
 signal in "Medium Space" lost about a decibel per second during the measured
