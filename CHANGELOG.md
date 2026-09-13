@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.1](https://github.com/wgd-modular/loewenzahnhonig-firmware/compare/v0.2.0...v0.2.1) (2026-09-13)
+
+
+### Bug Fixes
+
+* **cloudseed:** reach fully dry and wet, and pin the library to v0.1.0 ([#26](https://github.com/wgd-modular/loewenzahnhonig-firmware/issues/26)) ([1250e02](https://github.com/wgd-modular/loewenzahnhonig-firmware/commit/1250e02313ae67755fdd707bb15bdc80c7abfe39))
+
 ## [0.2.0](https://github.com/wgd-modular/loewenzahnhonig-firmware/compare/v0.1.2...v0.2.0) (2026-09-12)
 
 
