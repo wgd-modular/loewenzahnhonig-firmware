@@ -17,8 +17,8 @@ using namespace rings;
  * Pot 2: structure (also selects the chord in the sympathetic-string models)
  * Pot 3: brightness
  * Pot 4: damping
- * CV 1:  V/oct, added to Pot 1
- * CV 2:  strum trigger (rising edge above half scale)
+ * CV 1:  V/oct (-5 V to +5 V), added to Pot 1
+ * CV 2:  strum trigger (rising edge above 1 V)
  * In L:  exciter (audio in; the right input is ignored, as on Rings)
  * Out L: odd partials / Out R: even partials (Rings' ODD and EVEN outputs)
  *
@@ -34,11 +34,18 @@ using namespace rings;
 #define RINGS_POLYPHONY 2
 #endif
 
-// Voltage that the CV inputs read as full scale. NOT measured: tune this by
-// ear (see README.md) if octaves on CV 1 come out too wide or too narrow.
-#ifndef RINGS_CV_FULL_SCALE_VOLTS
-#define RINGS_CV_FULL_SCALE_VOLTS 5.0f
+// Voltage range of the CV inputs: GetCV() reads 0.0 at the lower end and
+// 1.0 at the upper end. The inputs are bipolar, -5 V to +5 V.
+#ifndef RINGS_CV_MIN_VOLTS
+#define RINGS_CV_MIN_VOLTS -5.0f
 #endif
+#ifndef RINGS_CV_MAX_VOLTS
+#define RINGS_CV_MAX_VOLTS 5.0f
+#endif
+
+static inline float ToVolts(float cv) {
+  return RINGS_CV_MIN_VOLTS + cv * (RINGS_CV_MAX_VOLTS - RINGS_CV_MIN_VOLTS);
+}
 
 // Fixed excitation position (Rings' POSITION knob), 0..1.
 #ifndef RINGS_POSITION
@@ -76,29 +83,28 @@ static void ReadControls(Patch* patch, PerformanceState* ps) {
   float structure = hardware.GetPot2();
   float brightness = hardware.GetPot3();
   float damping = hardware.GetPot4();
-  float cv1 = hardware.GetCV1();
-  float cv2 = hardware.GetCV2();
+  float volts1 = ToVolts(hardware.GetCV1());
+  float volts2 = ToVolts(hardware.GetCV2());
 
   patch->structure = clamp(structure, 0.0f, 0.9995f);
   patch->brightness = brightness;
   patch->damping = damping;
   patch->position = RINGS_POSITION;
 
-  // Strum trigger on CV 2, with hysteresis.
+  // Strum trigger on CV 2: high above 1 V, low again below 0.5 V.
   bool rising = false;
-  if (!trigger_high && cv2 > 0.5f) {
+  if (!trigger_high && volts2 > 1.0f) {
     trigger_high = true;
     rising = true;
-  } else if (trigger_high && cv2 < 0.4f) {
+  } else if (trigger_high && volts2 < 0.5f) {
     trigger_high = false;
   }
   if (trigger_high) trigger_hold = kPatchedHoldBlocks;
   else if (trigger_hold) --trigger_hold;
 
-  // V/oct on CV 1. An unpatched input reads 0 V; anything above about a
-  // tenth of a volt counts as a patched V/oct source.
-  const float semitones_per_unit = RINGS_CV_FULL_SCALE_VOLTS * 12.0f;
-  if (cv1 * RINGS_CV_FULL_SCALE_VOLTS > 0.1f) note_hold = kPatchedHoldBlocks;
+  // V/oct on CV 1, bipolar. An unpatched input reads 0 V; anything more than
+  // 50 mV away from it (under a semitone) counts as a patched V/oct source.
+  if (volts1 > 0.05f || volts1 < -0.05f) note_hold = kPatchedHoldBlocks;
   else if (note_hold) --note_hold;
 
   // Coarse frequency: 60 semitones, quantized with hysteresis like Rings.
@@ -115,7 +121,7 @@ static void ReadControls(Patch* patch, PerformanceState* ps) {
     ps->note = 0.0f;
     ps->tonic = 12.0f + transpose;  // free tuning without V/oct
   } else {
-    ps->note = cv1 * semitones_per_unit;
+    ps->note = volts1 * 12.0f;
     ps->tonic = 12.0f + transpose_q;
   }
 
