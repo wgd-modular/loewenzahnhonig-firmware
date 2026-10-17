@@ -30,26 +30,14 @@ jobs:
           ref: ${{ inputs.ref || github.ref }}
           submodules: recursive
 
-      - name: Set up ARM toolchain
-        uses: carlosperate/arm-none-eabi-gcc-action@v1
+      - name: Set up pixi
+        uses: prefix-dev/setup-pixi@v0.11.2
         with:
-          release: "12.2.Rel1"
-
-      - name: Set up arduino-cli
-        uses: arduino/setup-arduino-cli@v2
-
-      - name: Set up DaisyDuino board support
-        run: |
-          arduino-cli config init --additional-urls https://github.com/stm32duino/BoardManagerFiles/raw/main/package_stmicroelectronics_index.json
-          arduino-cli core update-index
-          arduino-cli core install STMicroelectronics:stm32
-          arduino-cli lib install DaisyDuino
-
-      - name: Build libraries
-        run: ./build_libs.sh
+          pixi-version: v0.72.2
+          cache: true
 
       - name: Build firmwares
-        run: python3 ./build_firmwares.py
+        run: pixi run build
 
       - name: Collect binaries
         run: |

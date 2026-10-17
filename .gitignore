@@ -39,6 +39,9 @@ __pycache__/
 # C extensions
 *.so
 
+# pixi environments
+.pixi/
+
 # Distribution / packaging
 .Python
 build/
