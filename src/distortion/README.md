@@ -38,9 +38,9 @@ with 4x oversampling around the clipping stages. Perfectly fits your Acid-Distor
 - CV 1: Distortion modulation
 - CV 2: High modulation
 
-Following the hardware convention, CV1 and CV2 are read inverted, scaled by
-`0.5` and added to the corresponding pot value. The result is clamped to
-`0.0` to `1.0`.
+CV1 and CV2 take -5 V to +5 V. They are read as `-1.0` to `1.0`, scaled by
+`0.5` and added to the corresponding pot value, so 0 V changes nothing. The
+result is clamped to `0.0` to `1.0`.
 
 ## Signal Path
 

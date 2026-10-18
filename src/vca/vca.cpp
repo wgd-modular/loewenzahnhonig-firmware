@@ -46,9 +46,9 @@ int main(void) {
 
   // Main loop to set parameters based on pot and CV controls
   while (1) {
-    // Read CV values from CV inputs (0.0 - 1.0)
-    float cvL = hardware.GetCV1();
-    float cvR = hardware.GetCV2();
+    // Read CV values from CV inputs (-1.0 - 1.0, 0.0 at 0 V)
+    float cvL = hardware.GetCVBipolar1();
+    float cvR = hardware.GetCVBipolar2();
 
     float offsetL = hardware.GetPot1();
     float offsetR = hardware.GetPot2();

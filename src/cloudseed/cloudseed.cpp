@@ -74,9 +74,10 @@ constexpr float kProgramHysteresis = 0.25f;
 // is updated, which keeps the pots' noise from recomputing the delay lines.
 constexpr float kPotThreshold = 0.001f;
 
-// Freeze gate thresholds on the 0..1 CV reading, with hysteresis.
-constexpr float kFreezeOn = 0.55f;
-constexpr float kFreezeOff = 0.45f;
+// Freeze gate thresholds in volts on CV 2, with hysteresis: a gate of 0 V to
+// +5 V freezes at about half its height and releases a little below that.
+constexpr float kFreezeOnVolts = 2.75f;
+constexpr float kFreezeOffVolts = 2.25f;
 
 // daisysp::SoftClip without its two float compares: the same soft limit on
 // the input clamped to -3..3, where the limit is exactly -1 and 1.
@@ -145,16 +146,16 @@ void AudioCallback(AudioHandle::InputBuffer in, AudioHandle::OutputBuffer out,
   engine.RequestProgram(QuantizeProgram(hardware.GetPot1()));
 
   const float mix = MixPosition(hardware.GetPot2());
-  const float decay = clamp(hardware.GetPot3() + hardware.GetCV1(), 0.f, 1.f);
+  const float decay = clamp(hardware.GetPot3() + hardware.GetCVBipolar1(), 0.f, 1.f);
   const float tone = hardware.GetPot4();
   engine.SetParameter(Parameter::LineDecay, decay, kPotThreshold);
   engine.SetParameter(Parameter::PostCutoffFrequency, tone, kPotThreshold);
 
   // CV 2 freezes the reverb while high.
-  const float gate = hardware.GetCV2();
-  if (gate > kFreezeOn) {
+  const float gate = hardware.GetCVVolts(Loewy::CV::CV_2);
+  if (gate > kFreezeOnVolts) {
     frozen = true;
-  } else if (gate < kFreezeOff) {
+  } else if (gate < kFreezeOffVolts) {
     frozen = false;
   }
   engine.SetFrozen(frozen);
