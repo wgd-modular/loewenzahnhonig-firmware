@@ -27,3 +27,15 @@ depends-on = ["build-libs", "setup-arduino"]
 [tasks.clean]
 description = "Remove all build output, including the libraries"
 cmd = "python build_firmwares.py --clean"
+
+[feature.manual.dependencies]
+typst = ">=0.15,<0.16"
+python = ">=3.12"
+git = "*"
+
+[feature.manual.tasks.manual]
+description = "Build the PDF manual from the firmware READMEs"
+cmd = "python manual/build.py"
+
+[environments]
+manual = { features = ["manual"], no-default-feature = true }

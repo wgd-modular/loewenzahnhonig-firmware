@@ -1,0 +1,53 @@
+name: Build Manual (reusable)
+
+on:
+  workflow_call:
+    inputs:
+      ref:
+        required: false
+        type: string
+        default: ""
+      attach-to-release:
+        required: false
+        type: boolean
+        default: false
+      tag-name:
+        required: false
+        type: string
+        default: ""
+
+jobs:
+  manual:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref || github.ref }}
+          fetch-depth: 0
+
+      - name: Set up pixi
+        uses: prefix-dev/setup-pixi@v0.11.2
+        with:
+          pixi-version: v0.72.2
+          environments: manual
+          cache: true
+
+      - name: Build manual
+        run: pixi run manual
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+
+      - name: Upload manual
+        uses: actions/upload-artifact@v4
+        with:
+          name: loewenzahnhonig-manual-${{ github.sha }}
+          path: manual/build/loewenzahnhonig-manual.pdf
+          if-no-files-found: error
+
+      - name: Attach manual to release
+        if: ${{ inputs.attach-to-release }}
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ inputs.tag-name }}
+          files: manual/build/loewenzahnhonig-manual.pdf

@@ -33,3 +33,14 @@ jobs:
       tag-name: ${{ needs.release-please.outputs.tag_name }}
     permissions:
       contents: write
+
+  manual-attach:
+    needs: release-please
+    if: ${{ needs.release-please.outputs.release_created == 'true' }}
+    uses: ./.github/workflows/build-manual.yml
+    with:
+      ref: ${{ needs.release-please.outputs.tag_name }}
+      attach-to-release: true
+      tag-name: ${{ needs.release-please.outputs.tag_name }}
+    permissions:
+      contents: write

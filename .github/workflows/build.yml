@@ -9,3 +9,8 @@ jobs:
     uses: ./.github/workflows/build-firmwares.yml
     permissions:
       contents: write
+
+  manual:
+    uses: ./.github/workflows/build-manual.yml
+    permissions:
+      contents: read

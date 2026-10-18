@@ -11,6 +11,11 @@ Flash your module straight from the browser with the [Löwenzahnhonig web flashe
 Prefer to grab the raw binaries? Every firmware is pre-compiled and attached to the [latest release](https://github.com/wgd-modular/loewenzahnhonig-firmware/releases/latest).
 
 
+## Manual
+
+The [user manual](https://github.com/wgd-modular/loewenzahnhonig-firmware/releases/latest/download/loewenzahnhonig-manual.pdf) (PDF) describes the module, how to flash it and every firmware with all of its controls. It is attached to every release, and the CI run of each commit has a build of it as an artifact. To build it yourself run `pixi run manual`; it only needs `typst`, `python` and `git`, managed by pixi, and takes the history of each firmware's folder from `git log`, so clone the repository with its full history.
+
+
 ## Controls
 
 One side of the modules front panel has a generic labelling. This table contains a mapping of which control is associated with which pin of the daisy seed.
@@ -55,6 +60,8 @@ When working on a single Make-based firmware it can be handy to drop into the en
 ## Contributing
 
 New firmwares for the Löwenzahnhonig module are always very welcome. Feel free to open a PR anytime. Each new firmware should be located in a new sub-folder with the same name as the `.ino` file together with a `README.md` file telling users about the controls and other possibly interesting stuff.
+
+The manual is generated from these READMEs, there is no hand-written text per firmware. The first `#` heading is the firmware's name, the text up to the first section heading its introduction, and every heading of the shallowest level below it starts a section. A section called "Controls" is highlighted, and what stands before its first sub-heading goes into a plaque, so put the table or list of the controls there. Sections for people who build or flash the firmware themselves (those called Building, Flashing, CPU load or Performance) are left out, as the manual has a chapter on both. A firmware whose README links to the README of another firmware (`../nimbus/README.md`, say) is listed as its variant, right behind it, and a variant without any sections is described within the chapter of the firmware it belongs to. Who wrote a firmware, when it was added and last changed come from the git history of its folder, so credit co-authors with a `Co-authored-by` trailer. Images and tables are fine, keep the text to Markdown.
 
 Make-based firmwares can use the small hardware abstraction in `lib/loewy.h`: it initializes the Daisy Seed and the ADC channels of the four pots and two CV inputs, and smooths their readings. `src/vca/vca.cpp` is a minimal example of how to use it. It also applies the Seed's system settings from the `lib/cloudseed-daisy` submodule (the 480 MHz clock where the silicon allows it, the SDRAM's refresh count and timings, the cache policies), which is why every firmware needs the submodules initialized.
 
