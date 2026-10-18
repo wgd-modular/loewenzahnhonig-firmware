@@ -177,7 +177,7 @@ void ReadControls() {
   }
 
   parameters->position =
-      clamp(parameters->position + hardware.GetCVBipolar1(), 0.f, 1.f);
+      clamp(parameters->position + hardware.GetCV1(), 0.f, 1.f);
 }
 
 void AudioCallback(AudioHandle::InputBuffer in, AudioHandle::OutputBuffer out,

@@ -164,9 +164,8 @@ The audible tail also depends on the diffusers, the block of feedback delay,
 modulation and damping, so this setting is not an exact broadband decay
 measurement.
 
-CV 1 is added to the pot (0 V adds nothing, +5 V adds the whole range and
--5 V takes it away), with the sum clamped between no decay and the longest
-decay. With the pot low, a gate or envelope into CV 1 gives a note its own long tail while the reverb keeps
+CV 1 is added to the pot (0 V adds nothing, +5 V adds the whole range), with
+the sum clamped between no decay and the longest decay. With the pot low, a gate or envelope into CV 1 gives a note its own long tail while the reverb keeps
 taking new input; this is the "infinite" of reverb pedals, where new notes
 add to the sustained sound.
 
@@ -336,8 +335,8 @@ a report with the load, its breakdown into the callback's sections, the
 controls and the staging's transport. The library's README describes the
 lines; the `controls=` values are, in order, the four pots, CV 1 as used and
 raw, CV 2 as used and raw, the decay the callback derived and the mix, each
-0 to 1000; the CV values are on the pots' scale, where -5 V reads 0, 0 V
-about 500 and +5 V 1000. `mixed=1` marks an interval whose program, line count or freeze
+0 to 1000; the CV values are on the pots' scale, where 0 V (or less) reads 0
+and +5 V 1000. `mixed=1` marks an interval whose program, line count or freeze
 state changed; use `mixed=0` for steady-state comparisons.
 
 Measure with the module in the rack. On USB power alone the CV input

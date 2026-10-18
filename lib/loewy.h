@@ -10,7 +10,7 @@ namespace loewy {
 /**
  * Hardware abstraction for the Löwenzahnhonig Eurorack module: a Daisy Seed
  * with four potentiometers (P1-P4 on A0-A3) and two CV inputs (CV1-CV2 on
- * A4-A5, -5 V to +5 V).
+ * A4-A5, 0 V to +5 V).
  *
  * The controls are read through libDaisy's AnalogControl, which smooths the
  * ADC readings with a one-pole filter. The filter coefficient is derived from
@@ -53,10 +53,10 @@ class Loewy {
     float pot_slew_seconds = 0.002f;
     float cv_slew_seconds = 0.0005f;
 
-    // The CV input stage of the module is inverting: +5 V reads as 0.0 and
-    // -5 V as full scale. Flipping the reading (1 - x) makes a higher voltage
-    // read higher. This matches the `1 - GetFloat()` that the firmwares used
-    // before this class.
+    // The CV input stage of the module is inverting: 0 V reads as full scale
+    // and +5 V as 0.0. Flipping the reading (1 - x) makes 0 V read as 0.0 and
+    // +5 V as 1.0, like the pots. This matches the `1 - GetFloat()` that the
+    // firmwares used before this class.
     bool flip_cv = true;
 
     // The Seed's system settings, applied through the cloudseed-daisy
@@ -103,20 +103,16 @@ class Loewy {
     return pots_[static_cast<size_t>(pot)].Value();
   }
 
-  // The CV inputs take -5 V to +5 V.
-  static constexpr float kCVMinVolts = -5.0f;
+  // The CV inputs take 0 V to +5 V. Negative voltages and an unpatched input
+  // read as 0 V, anything above +5 V as +5 V.
+  static constexpr float kCVMinVolts = 0.0f;
   static constexpr float kCVMaxVolts = 5.0f;
 
-  // Last processed value of a CV input, 0.0 (-5 V) to 1.0 (+5 V), with 0 V
-  // in the middle at 0.5. Use GetCVBipolar() or GetCVVolts() for a value
-  // that is zero at 0 V, which an unpatched input is.
+  // Last processed value of a CV input, 0.0 (0 V) to 1.0 (+5 V).
   float GetCV(CV cv) const { return cvs_[static_cast<size_t>(cv)].Value(); }
 
-  // The same reading as -1.0 (-5 V) to 1.0 (+5 V), 0.0 at 0 V.
-  float GetCVBipolar(CV cv) const { return 2.0f * GetCV(cv) - 1.0f; }
-
-  // The same reading in volts.
-  float GetCVVolts(CV cv) const { return GetCVBipolar(cv) * kCVMaxVolts; }
+  // The same reading in volts, 0 V to +5 V.
+  float GetCVVolts(CV cv) const { return GetCV(cv) * kCVMaxVolts; }
 
   float GetPot1() const { return GetPot(Pot::POT_1); }
   float GetPot2() const { return GetPot(Pot::POT_2); }
@@ -125,9 +121,6 @@ class Loewy {
 
   float GetCV1() const { return GetCV(CV::CV_1); }
   float GetCV2() const { return GetCV(CV::CV_2); }
-
-  float GetCVBipolar1() const { return GetCVBipolar(CV::CV_1); }
-  float GetCVBipolar2() const { return GetCVBipolar(CV::CV_2); }
 
   // The ADC's own reading of a CV input, 0.0 to 1.0 of full scale, before
   // the flip and the smoothing: for checking what the input stage delivers.
