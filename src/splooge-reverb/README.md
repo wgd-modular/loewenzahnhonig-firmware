@@ -36,7 +36,7 @@ Nik Ansell (gamecat69)
 - Tone: 30%
 - Splooge: 60%
 
-Tweak the Splooge to taste. Low is more subdued, while a high value will sound etheral and spacey.
+Tweak the Splooge to taste. Low is more subdued, while a high value will sound ethereal and spacey.
 
 ### Roomy - good for Drums
 

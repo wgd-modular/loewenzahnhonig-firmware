@@ -39,4 +39,4 @@ is soft-clipped like in the other variants.
 
 Run `pixi run build nimbus-looping-delay` from the repository root. It compiles `../nimbus/nimbus.cpp` with
 `NIMBUS_VARIANT_LOOPING_DELAY` defined; the binary ends up in
-`build/nimbus-looping-delay.bin`.
+`src/nimbus-looping-delay/build/nimbus-looping-delay.bin`.

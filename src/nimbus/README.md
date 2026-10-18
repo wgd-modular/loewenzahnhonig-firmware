@@ -242,7 +242,7 @@ the releases next to the other firmwares.
    quality (0 = 16-bit stereo, 1 = 16-bit mono, 2 = 8-bit stereo, 3 = 8-bit
    mono), the role of each pot (position, size, pitch, density, texture or
    feedback) and the values of the parameters that get no pot.
-3. Run `make` in the new folder and describe the variant in its README.
+3. Run `pixi run build <name>` for the new folder and describe the variant in its README.
    `build_firmwares.py` and CI pick up every folder with a Makefile.
 
 ## Technical notes

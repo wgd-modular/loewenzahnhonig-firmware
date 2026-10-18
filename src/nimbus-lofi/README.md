@@ -34,4 +34,4 @@ controls, the fixed parameters and the design decisions.
 ## Building
 
 Run `pixi run build nimbus-lofi` from the repository root. It compiles `../nimbus/nimbus.cpp` with
-`NIMBUS_VARIANT_LOFI` defined; the binary ends up in `build/nimbus-lofi.bin`.
+`NIMBUS_VARIANT_LOFI` defined; the binary ends up in `src/nimbus-lofi/build/nimbus-lofi.bin`.

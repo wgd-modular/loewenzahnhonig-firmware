@@ -36,4 +36,4 @@ pitch shifter; freeze a phrase with CV 2 and turn Pot 1 slowly to stretch it.
 
 Run `pixi run build nimbus-stretch` from the repository root. It compiles `../nimbus/nimbus.cpp` with
 `NIMBUS_VARIANT_STRETCH` defined; the binary ends up in
-`build/nimbus-stretch.bin`.
+`src/nimbus-stretch/build/nimbus-stretch.bin`.
