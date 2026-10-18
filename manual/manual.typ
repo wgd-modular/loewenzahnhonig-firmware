@@ -221,7 +221,8 @@
   #place(top + left, dx: 8 * cell, dy: cell, block(width: 5 * cell,
     height: 16 * cell, fill: cream-soft, radius: 1.5mm, clip: true,
     inset: 1.5mm, block(width: 100%, height: 100%, clip: true,
-      image("assets/panel.png", width: 100%, height: 100%, fit: "cover"))))
+      // The panel is a little wider than the 5 cells, trim its left side.
+      place(top + right, image("assets/panel.png", height: 100%)))))
   #place(top + left, dx: cell, dy: 3 * cell, block(width: 6 * cell, {
     block(height: 10 * cell, fill: cream-soft, radius: 6mm,
       stroke: 2pt + honey-deep, inset: 1.6mm,
