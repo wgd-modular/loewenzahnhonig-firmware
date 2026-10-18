@@ -37,7 +37,6 @@ is soft-clipped like in the other variants.
 
 ## Building
 
-Build the libraries once with `./build_libs.sh` from the repository root, then
-run `make` in this folder. It compiles `../nimbus/nimbus.cpp` with
+Run `pixi run build nimbus-looping-delay` from the repository root. It compiles `../nimbus/nimbus.cpp` with
 `NIMBUS_VARIANT_LOOPING_DELAY` defined; the binary ends up in
 `build/nimbus-looping-delay.bin`.

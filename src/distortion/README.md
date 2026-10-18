@@ -2,8 +2,8 @@
 
 ## Current State
 
-Boss MT-2 (Metal Zone) inspired stereo distortion for the Loewenzahnhonig-module by WGD Modular,
-with 4x oversampling around the clipping stages. Perfectly fits your Acid-Distortion-Needs with an 303'ish synth.
+Boss MT-2 (Metal Zone) inspired stereo distortion for the Löwenzahnhonig module by wgd modular,
+with 4x oversampling around the clipping stages. It suits acid lines from a 303-style synth.
 
 - DaisySeed and stereo audio initialized
 - ADC set up for four pots and two CV inputs
@@ -17,8 +17,8 @@ with 4x oversampling around the clipping stages. Perfectly fits your Acid-Distor
 - Block-based, sample-rate-aware parameter smoothing
 - Safe output protection
 
-> The firmware is MT-2 inspired by, but not an exact digital reproduction of
-> the original pedal.
+The firmware is inspired by the MT-2, but not an exact digital reproduction of
+the original pedal.
 
 ## Architecture
 

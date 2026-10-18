@@ -34,7 +34,6 @@ pitch shifter; freeze a phrase with CV 2 and turn Pot 1 slowly to stretch it.
 
 ## Building
 
-Build the libraries once with `./build_libs.sh` from the repository root, then
-run `make` in this folder. It compiles `../nimbus/nimbus.cpp` with
+Run `pixi run build nimbus-stretch` from the repository root. It compiles `../nimbus/nimbus.cpp` with
 `NIMBUS_VARIANT_STRETCH` defined; the binary ends up in
 `build/nimbus-stretch.bin`.

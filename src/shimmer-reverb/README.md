@@ -1,8 +1,8 @@
-# shimmer-reverb
+# Shimmer Reverb
 
 An alteration to the basic reverb where you can add the wet level of the reverb signal one and two octaves up. This is also controllable via cv input 2.
 
-### controls
+## Controls
 
 | Control | Function        |
 |---------|-----------------|

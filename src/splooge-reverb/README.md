@@ -8,14 +8,15 @@ This effect works best if InL is normalled to InR in hardware.
 
 Nik Ansell (gamecat69)
 
-### Version History:
-0.1		Nik Ansell		Initial plaything
-0.2		Nik Ansell		Added Splooge on Pot4/Cv2 + HPF on Wet Tone control (Pot3/Cv1)
-0.3     Nik Ansell      Improved Dry/Wet gain balance. Improved Sploodge effect by reducing delay time and reducing pitchshift gain at lower sploodge settings.
+### Version History
 
-## Description
+| Version | Author     | Change |
+|---------|------------|--------|
+| 0.1     | Nik Ansell | Initial plaything |
+| 0.2     | Nik Ansell | Added Splooge on Pot4/Cv2 + HPF on Wet Tone control (Pot3/Cv1) |
+| 0.3     | Nik Ansell | Improved Dry/Wet gain balance. Improved Splooge effect by reducing delay time and reducing pitchshift gain at lower splooge settings. |
 
-### Controls:
+## Controls
 
 | Control | Function        |
 |---------|-----------------|
@@ -26,9 +27,9 @@ Nik Ansell (gamecat69)
 | CV1     | Wet Tone CV     |
 | CV2     | Splooge CV |
 
-### Patching ideas:
+## Patching ideas
 
-#### Synth Ambience
+### Synth Ambience
 
 - Feedback: 90%
 - Wet/Dry: 50%
@@ -37,7 +38,7 @@ Nik Ansell (gamecat69)
 
 Tweak the Splooge to taste. Low is more subdued, while a high value will sound etheral and spacey.
 
-#### Roomy - good for Drums
+### Roomy - good for Drums
 
 - Feedback: 50%
 - Wet/Dry: 40%
@@ -45,9 +46,9 @@ Tweak the Splooge to taste. Low is more subdued, while a high value will sound e
 - Splooge: 5%
 
 Tweaking Feedback will adjust the size of the room. Tweaking Tone will change the materials in the room.
-Tweaking Spooge will add echos.
+Tweaking Splooge will add echoes.
 
-#### Warm - good for stringed instruments
+### Warm - good for stringed instruments
 
 - Feedback: 75%
 - Wet/Dry: 50%
