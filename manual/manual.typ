@@ -322,9 +322,9 @@
 == Controls in general
 
 One side of the front panel carries generic labels, P1 to P4 for the knobs
-and CV1 and CV2 for the control voltage inputs. The table shows which pin
-of the Daisy Seed each of them is wired to. The panel on the previous page is
-labelled Dry, Wet, Feedback and LP Freq.
+and CV1 and CV2 for the control voltage inputs; the other side is the one on
+the previous page, labelled Dry, Wet, Feedback and LP Freq. The table shows
+which pin of the Daisy Seed each of the generic controls is wired to.
 
 #table(columns: (auto, 1fr),
   table.header([Control], [Daisy Seed pin]),
@@ -332,12 +332,10 @@ labelled Dry, Wet, Feedback and LP Freq.
 )
 
 The firmwares read the knobs and the CV inputs as values between 0 and 1.
-The CV input stage of the module is inverting; the shared firmware library
-flips it, so a higher voltage gives a higher value. Where a firmware
-adds a CV input to a knob, the knob sets the starting point and the CV moves
-it from there. The voltage range a firmware expects differs, for example
-Rings reads its CV inputs as bipolar while the first CV input of Nimbus is
-unipolar, so each chapter says what its CV inputs expect.
+The CV inputs take -5 V to +5 V. Their input stage is inverting; the shared
+firmware library flips it, so a higher voltage gives a higher value. Where a
+firmware adds a CV input to a knob, the knob sets the starting point and the
+CV moves it from there. Each chapter says what its CV inputs do.
 
 == Specifications
 
@@ -346,7 +344,7 @@ unipolar, so each chapter says what its CV inputs expect.
   [Format], [Eurorack],
   [Platform], [Electro-Smith Daisy Seed, STM32H750 with an Arm Cortex-M7],
   [Audio], [Stereo in and out, 48 kHz],
-  [Controls], [Four knobs, two CV inputs],
+  [Controls], [Four knobs, two CV inputs (-5 V to +5 V)],
   [Memory], [128 KB flash for the firmware, 64 MB SDRAM],
   [Firmware], [Changed over USB from the browser, see the next chapter],
 )
