@@ -1,0 +1,29 @@
+[workspace]
+name = "loewenzahnhonig-firmware"
+description = "Firmwares for the daisy-based Löwenzahnhonig Eurorack module"
+authors = ["Felix Wiegand <fxwiegand@googlemail.com>"]
+channels = ["conda-forge", "memfault"]
+platforms = ["linux-64", "osx-64", "osx-arm64"]
+
+[dependencies]
+xpack-gcc-arm-none-eabi = { version = "13.3.1.*", channel = "memfault" }
+make = ">=4.4"
+python = ">=3.12"
+
+[tasks.build-libs]
+description = "Build libDaisy and DaisySP"
+cmd = "python build_firmwares.py --libs"
+
+[tasks.setup-arduino]
+description = "Install the pinned arduino-cli, STM32 core and DaisyDuino library"
+cmd = "python build_firmwares.py --setup-arduino"
+
+[tasks.build]
+description = "Build all firmwares, or only the one named"
+args = [{ arg = "firmware", default = "" }]
+cmd = "python build_firmwares.py {{ firmware }}"
+depends-on = ["build-libs", "setup-arduino"]
+
+[tasks.clean]
+description = "Remove all build output, including the libraries"
+cmd = "python build_firmwares.py --clean"

@@ -27,32 +27,29 @@ One side of the modules front panel has a generic labelling. This table contains
 
 # Compilation
 
-This step is only required if you want to modify a firmware or create your own. The firmwares depends on the `libDaisy` and `DaisySP` development libraries by Electro-Smith. These are added as submodules to this repository and are most easily fetched when initially cloning the repository as follows:
+This step is only required if you want to modify a firmware or create your own. The firmwares depend on the `libDaisy` and `DaisySP` development libraries by Electro-Smith, and some depend on `lib/eurorack` or `lib/cloudseed-daisy`. These are added as submodules to this repository and are most easily fetched when initially cloning the repository as follows:
 
 ```shell
 git clone --recursive https://github.com/wgd-modular/loewenzahnhonig-firmware
 ```
 
-Next you run the provided script to compile the libraries:
+If you cloned without `--recursive`, fetch them afterwards with `git submodule update --init --recursive`.
+
+Everything else, the ARM GCC toolchain, `make`, Python and the arduino-cli toolchain the `.ino`-based firmwares need, is managed by [pixi](https://pixi.sh), so nothing has to be installed system-wide apart from pixi itself. It works the same on Linux and macOS (Intel and Apple Silicon); on Windows use WSL. To compile all firmwares run:
 
 ```shell
-./build_libs.sh
+pixi run build
 ```
 
-Finally, if you want to compile all libraries you can run the provided Python script:
+The first run sets up the toolchains and compiles both libraries, later runs reuse them. To compile one specific firmware, pass its name:
 
 ```shell
-python ./build_firmwares.py
+pixi run build vca
 ```
 
-If instead you want to compile one specific firmware, you should change your working directory to that of the firmware and execute the Makefile. For example:
+This places the firmware in `src/vca/build/vca.bin`, ready for the web flasher. `pixi run build-libs` only rebuilds the libraries, and `pixi run clean` removes all build output again.
 
-```shell
-cd src/vca
-make
-```
-
-This will compile the VCA firmware and place its output in the `build` subdirectory.
+When working on a single Make-based firmware it can be handy to drop into the environment with `pixi shell` and call `make` inside the firmware's folder directly.
 
 
 ## Contributing
