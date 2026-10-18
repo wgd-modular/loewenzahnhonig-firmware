@@ -11,7 +11,6 @@
 
 ### Bug Fixes
 
-* Assume the CV inputs take -5 V to +5 V ([#33](https://github.com/wgd-modular/loewenzahnhonig-firmware/issues/33)) ([7713718](https://github.com/wgd-modular/loewenzahnhonig-firmware/commit/771371831fb2f460367d5a9dfed80e254d08799d))
 * Read the CV inputs as 0 V to +5 V ([#35](https://github.com/wgd-modular/loewenzahnhonig-firmware/issues/35)) ([9bf0107](https://github.com/wgd-modular/loewenzahnhonig-firmware/commit/9bf01076433aeff90eba4ca400d94e3bd81dd343))
 
 ## [0.2.1](https://github.com/wgd-modular/loewenzahnhonig-firmware/compare/v0.2.0...v0.2.1) (2026-09-13)
