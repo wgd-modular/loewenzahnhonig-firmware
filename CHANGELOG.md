@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.3.0](https://github.com/wgd-modular/loewenzahnhonig-firmware/compare/v0.2.1...v0.3.0) (2026-10-18)
+
+
+### Features
+
+* Add a PDF manual built from the firmware READMEs ([#31](https://github.com/wgd-modular/loewenzahnhonig-firmware/issues/31)) ([f3396f0](https://github.com/wgd-modular/loewenzahnhonig-firmware/commit/f3396f097f91f29dd410cabd7e259856b7aaf0f2))
+* add Rings resonator firmware ([#28](https://github.com/wgd-modular/loewenzahnhonig-firmware/issues/28)) ([169efef](https://github.com/wgd-modular/loewenzahnhonig-firmware/commit/169efef0c87f3e8ff321f10908691dbd3807f7c3))
+
+
+### Bug Fixes
+
+* Assume the CV inputs take -5 V to +5 V ([#33](https://github.com/wgd-modular/loewenzahnhonig-firmware/issues/33)) ([7713718](https://github.com/wgd-modular/loewenzahnhonig-firmware/commit/771371831fb2f460367d5a9dfed80e254d08799d))
+* Read the CV inputs as 0 V to +5 V ([#35](https://github.com/wgd-modular/loewenzahnhonig-firmware/issues/35)) ([9bf0107](https://github.com/wgd-modular/loewenzahnhonig-firmware/commit/9bf01076433aeff90eba4ca400d94e3bd81dd343))
+
 ## [0.2.1](https://github.com/wgd-modular/loewenzahnhonig-firmware/compare/v0.2.0...v0.2.1) (2026-09-13)
 
 
