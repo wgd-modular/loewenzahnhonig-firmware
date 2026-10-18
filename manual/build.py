@@ -239,6 +239,13 @@ def history(folder):
     }
 
 
+def same_person(short, full):
+    """Whether two names are one person, the first name is just shortened."""
+    first, last = short.lower().split(), full.lower().split()
+    return (len(first) > 1 and first[1:] == last[1:] and first[0] != last[0]
+            and last[0].startswith(first[0]))
+
+
 def order(firmwares):
     """Alphabetical, with variants right behind the firmware they link to.
 
@@ -306,6 +313,27 @@ def collect():
     for firmware in firmwares:
         for author in (firmware["history"] or {}).get("authors", []):
             author["name"] = names.get(author["login"], author["name"])
+
+    # An address GitHub does not know belongs to a person who is on GitHub
+    # under a longer form of the name ("Ben" and "Benjamin" van der Burgh).
+    known = {a["login"]: a["name"] for fw in firmwares
+             for a in (fw["history"] or {}).get("authors", [])
+             if a["login"]}
+    for firmware in firmwares:
+        authors = (firmware["history"] or {}).get("authors", [])
+        for author in authors:
+            if author["login"] is None:
+                for login, name in known.items():
+                    if same_person(author["name"], name):
+                        author.update(name=name, login=login)
+        seen, unique = set(), []
+        for author in authors:
+            key = author["login"] or author["name"]
+            if key not in seen:
+                seen.add(key)
+                unique.append(author)
+        if firmware["history"]:
+            firmware["history"]["authors"] = unique
 
     manifest = json.loads((ROOT / ".release-please-manifest.json").read_text())
     head = git("log", "-1", "--format=%H%x1f%cs").strip().split("\x1f")
