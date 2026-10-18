@@ -332,8 +332,9 @@ which pin of the Daisy Seed each of the generic controls is wired to.
 )
 
 The firmwares read the knobs and the CV inputs as values between 0 and 1.
-The CV inputs take -5 V to +5 V. Their input stage is inverting; the shared
-firmware library flips it, so a higher voltage gives a higher value. Where a
+The CV inputs take 0 V to +5 V. Their input stage is inverting; the shared
+firmware library flips it, so 0 V reads as 0 and +5 V as 1. Negative voltages
+and an unpatched jack read as 0 V. Where a
 firmware adds a CV input to a knob, the knob sets the starting point and the
 CV moves it from there. Each chapter says what its CV inputs do.
 
@@ -344,7 +345,7 @@ CV moves it from there. Each chapter says what its CV inputs do.
   [Format], [Eurorack],
   [Platform], [Electro-Smith Daisy Seed, STM32H750 with an Arm Cortex-M7],
   [Audio], [Stereo in and out, 48 kHz],
-  [Controls], [Four knobs, two CV inputs (-5 V to +5 V)],
+  [Controls], [Four knobs, two CV inputs (0 V to +5 V)],
   [Memory], [128 KB flash for the firmware, 64 MB SDRAM],
   [Firmware], [Changed over USB from the browser, see the next chapter],
 )

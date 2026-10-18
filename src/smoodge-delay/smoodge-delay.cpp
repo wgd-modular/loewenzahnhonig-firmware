@@ -13,7 +13,7 @@ using namespace std::chrono;
 
 Loewy hardware;
 
-#define CV_CHANGE_TOLERANCE .02f
+#define CV_CHANGE_TOLERANCE .01f
 
 #define MAX_DELAY static_cast<size_t>(48000 * 16.0f)
 static DelayLine<float, MAX_DELAY> DSY_SDRAM_BSS dell;
@@ -140,7 +140,7 @@ int main(void) {
     cv1 = hardware.GetCVVolts(Loewy::CV::CV_1);
 
     // Set cv2 value only if it has changed by > CV_CHANGE_TOLERANCE
-    cv2Temp = hardware.GetCVBipolar2();
+    cv2Temp = hardware.GetCV2();
     if (fabsf((cv2Temp - cv2)) > CV_CHANGE_TOLERANCE) {
       cv2 = cv2Temp;
     }

@@ -60,8 +60,8 @@ follows the input with only a grain's worth of delay. Turning clockwise travels
 back in time, up to about 0.7 s fully clockwise. While the buffer is frozen this
 scrubs through the captured audio.
 
-CV 1 is added to the pot (0 V adds nothing, +5 V adds the whole range and
--5 V takes it away), with the sum clamped to the buffer. A slow LFO or a random voltage smears the
+CV 1 is added to the pot (0 V adds nothing, +5 V adds the whole range), with
+the sum clamped to the buffer. A slow LFO or a random voltage smears the
 grains over the recent past; a slow ramp or sequence scrubs a frozen buffer.
 
 ### Pot 2: Size
@@ -106,8 +106,8 @@ thick, diffuse wash.
 
 ### CV 1: Position
 
-Added to Pot 1, see above. The input is bipolar: -5 V to +5 V moves the
-position back and forth across the buffer, and 0 V changes nothing.
+Added to Pot 1, see above: 0 V to +5 V moves the position further back across
+the buffer, and 0 V changes nothing.
 
 ### CV 2: Freeze / trigger
 

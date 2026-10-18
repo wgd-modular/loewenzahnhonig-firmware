@@ -127,8 +127,8 @@ int main(void) {
 
   // Main loop to set parameters based on pot and CV controls
   while (1) {
-    float cv1 = hardware.GetCVBipolar1();
-    float cv2 = hardware.GetCVBipolar2();
+    float cv1 = hardware.GetCV1();
+    float cv2 = hardware.GetCV2();
 
     // Set chorus params
     chorus.SetLfoFreq(.33f, .2f);

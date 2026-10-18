@@ -147,7 +147,7 @@ void AudioCallback(AudioHandle::InputBuffer in, AudioHandle::OutputBuffer out,
 
   const float mix = MixPosition(hardware.GetPot2());
   const float decay =
-      clamp(hardware.GetPot3() + hardware.GetCVBipolar1(), 0.f, 1.f);
+      clamp(hardware.GetPot3() + hardware.GetCV1(), 0.f, 1.f);
   const float tone = hardware.GetPot4();
   engine.SetParameter(Parameter::LineDecay, decay, kPotThreshold);
   engine.SetParameter(Parameter::PostCutoffFrequency, tone, kPotThreshold);
