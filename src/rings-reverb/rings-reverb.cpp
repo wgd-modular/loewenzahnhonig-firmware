@@ -19,8 +19,8 @@ static void AudioCallback(AudioHandle::InputBuffer in,
   float diffusion = hardware.GetPot3();
   float time = hardware.GetPot4();
 
-  float diffusion_cv = hardware.GetCV1();
-  float time_cv = hardware.GetCV2();
+  float diffusion_cv = hardware.GetCVBipolar1();
+  float time_cv = hardware.GetCVBipolar2();
 
   float final_diffusion = clamp(diffusion + diffusion_cv * 0.5f, 0.0f, 1.0f);
   float final_time = clamp(time + time_cv * 0.5f, 0.0f, 1.0f);

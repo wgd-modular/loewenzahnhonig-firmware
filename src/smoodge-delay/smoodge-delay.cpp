@@ -13,7 +13,7 @@ using namespace std::chrono;
 
 Loewy hardware;
 
-#define CV_CHANGE_TOLERANCE .01f
+#define CV_CHANGE_TOLERANCE .02f
 
 #define MAX_DELAY static_cast<size_t>(48000 * 16.0f)
 static DelayLine<float, MAX_DELAY> DSY_SDRAM_BSS dell;
@@ -58,6 +58,9 @@ int genRandInt(int high, int low) {
 }
 
 // clamp function now available from utils.h
+
+// A clock or gate on CV1 counts as high from this voltage on.
+const float kClockThresholdVolts = 1.0f;
 
 // Function returns true if value >= threshold
 bool isInputHigh(float threshold, float value) {
@@ -134,10 +137,10 @@ int main(void) {
 
   while (1) {
     // Set some pot and CV values
-    cv1 = hardware.GetCV1();
+    cv1 = hardware.GetCVVolts(Loewy::CV::CV_1);
 
     // Set cv2 value only if it has changed by > CV_CHANGE_TOLERANCE
-    cv2Temp = hardware.GetCV2();
+    cv2Temp = hardware.GetCVBipolar2();
     if (fabsf((cv2Temp - cv2)) > CV_CHANGE_TOLERANCE) {
       cv2 = cv2Temp;
     }
@@ -188,7 +191,7 @@ int main(void) {
     }  // x8
 
     // Check for clock input on CV1 - use onboard LED as a visual indicator
-    newClkVal = isInputHigh(0.5f, cv1);
+    newClkVal = isInputHigh(kClockThresholdVolts, cv1);
 
     if (newClkVal != oldClkVal) {
       if (newClkVal == true) {

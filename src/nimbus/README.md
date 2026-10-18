@@ -60,8 +60,8 @@ follows the input with only a grain's worth of delay. Turning clockwise travels
 back in time, up to about 0.7 s fully clockwise. While the buffer is frozen this
 scrubs through the captured audio.
 
-CV 1 is added to the pot (0 V adds nothing, full scale adds the whole range),
-with the sum limited to the buffer. A slow LFO or a random voltage smears the
+CV 1 is added to the pot (0 V adds nothing, +5 V adds the whole range and
+-5 V takes it away), with the sum clamped to the buffer. A slow LFO or a random voltage smears the
 grains over the recent past; a slow ramp or sequence scrubs a frozen buffer.
 
 ### Pot 2: Size
@@ -106,14 +106,14 @@ thick, diffuse wash.
 
 ### CV 1: Position
 
-Added to Pot 1, see above. The input is unipolar: negative voltages read as
-0 V, so only the positive half of a bipolar LFO has an effect.
+Added to Pot 1, see above. The input is bipolar: -5 V to +5 V moves the
+position back and forth across the buffer, and 0 V changes nothing.
 
 ### CV 2: Freeze / trigger
 
-While the voltage is above half scale, the buffer stops recording and the pots
-play the captured audio. Recording resumes when the voltage drops below about
-45% of full scale (there is some hysteresis, so slow voltages do not chatter).
+While the voltage is above about +2 V, the buffer stops recording and the
+pots play the captured audio. Recording resumes when the voltage drops below
+about +1 V (there is some hysteresis, so slow voltages do not chatter).
 The Daisy Seed's on-board LED lights while the buffer is frozen. As on Clouds,
 the feedback path is muted while frozen and the reverb rises a little.
 
@@ -213,8 +213,8 @@ is most rewarding to modulate.
 
 Known limitations that follow from these choices: there is no pitch CV and no
 dry/wet control; Pot 4 is silent at its centre unless CV 2 is triggered; dense
-regular grains at unison are loud; and the CV inputs are unipolar, so bipolar
-modulation only acts on its positive half.
+regular grains at unison are loud; and a gate on CV 2 has to rise above about
++2 V to freeze.
 
 ## Variants
 

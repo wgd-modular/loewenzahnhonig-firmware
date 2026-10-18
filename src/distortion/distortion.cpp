@@ -28,8 +28,8 @@ void ReadControls() {
   float highColorPot = hardware.GetPot3();
   float level = hardware.GetPot4();
 
-  float cv1 = hardware.GetCV1();
-  float cv2 = hardware.GetCV2();
+  float cv1 = hardware.GetCVBipolar1();
+  float cv2 = hardware.GetCVBipolar2();
 
   float distortionAmount = clamp(distortionPot + cv1 * cvAmount, 0.0f, 1.0f);
   float highColor = clamp(highColorPot + cv2 * cvAmount, 0.0f, 1.0f);

@@ -93,8 +93,8 @@ int main(void) {
     float freqOffset = hardware.GetPot3();
     float levelOffset = hardware.GetPot4();
 
-    float carrierFrequencyCV = hardware.GetCV1();
-    float carrierLevelCV = hardware.GetCV2();
+    float carrierFrequencyCV = hardware.GetCVBipolar1();
+    float carrierLevelCV = hardware.GetCVBipolar2();
 
     // Logarithmic frequency control
     float freqControl = clamp(freqOffset + carrierFrequencyCV, 0.0f, 1.0f);

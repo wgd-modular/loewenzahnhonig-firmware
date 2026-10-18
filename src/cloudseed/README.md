@@ -164,9 +164,9 @@ The audible tail also depends on the diffusers, the block of feedback delay,
 modulation and damping, so this setting is not an exact broadband decay
 measurement.
 
-CV 1 is added to the pot (0 V adds nothing, full scale adds the whole range),
-with the sum limited to the longest decay. With the pot low, a gate or
-envelope into CV 1 gives a note its own long tail while the reverb keeps
+CV 1 is added to the pot (0 V adds nothing, +5 V adds the whole range and
+-5 V takes it away), with the sum clamped between no decay and the longest
+decay. With the pot low, a gate or envelope into CV 1 gives a note its own long tail while the reverb keeps
 taking new input; this is the "infinite" of reverb pedals, where new notes
 add to the sustained sound.
 
@@ -182,7 +182,7 @@ programs' low and high shelf filters in the same loop stay as they are.
 
 ### CV 2: Freeze
 
-While the gate is high (above about half of the CV range, with hysteresis),
+While the gate is high (above about +2 V, released below about +1 V),
 the reverb is frozen the way a reverb pedal's "freeze" works: nothing new
 enters the reverb, the delay lines recirculate what they hold with unity
 feedback and bypass their damping filters. New notes pass through the dry
@@ -336,12 +336,13 @@ a report with the load, its breakdown into the callback's sections, the
 controls and the staging's transport. The library's README describes the
 lines; the `controls=` values are, in order, the four pots, CV 1 as used and
 raw, CV 2 as used and raw, the decay the callback derived and the mix, each
-0 to 1000. `mixed=1` marks an interval whose program, line count or freeze
+0 to 1000; the CV values are on the pots' scale, where -5 V reads 0, 0 V
+about 500 and +5 V 1000. `mixed=1` marks an interval whose program, line count or freeze
 state changed; use `mixed=0` for steady-state comparisons.
 
 Measure with the module in the rack. On USB power alone the CV input
 stage is unpowered, its op-amps' outputs rest at 0 V, and the firmware
-reads that as full scale on both CV inputs: the reverb is frozen and the
+should read as +5 V on both CV inputs: the reverb is frozen and the
 decay at its maximum, which the `controls` and `freeze` fields show.
 
 The board options below belong to this firmware's Makefile; the library's

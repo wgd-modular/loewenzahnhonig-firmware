@@ -106,9 +106,10 @@ constexpr Variant kVariant = {
 constexpr float kPitchDeadZone = 0.04f;
 constexpr float kPitchRangeSemitones = 24.f;
 
-// Freeze gate thresholds on the 0..1 CV reading, with hysteresis.
-constexpr float kFreezeOn = 0.55f;
-constexpr float kFreezeOff = 0.45f;
+// Freeze gate thresholds in volts on CV 2, with hysteresis. They are low enough
+// for gates of 3.3 V and more and well above the 0 V of a gate that is low.
+constexpr float kFreezeOnVolts = 2.0f;
+constexpr float kFreezeOffVolts = 1.0f;
 
 float PitchFromPot(float pot) {
   float offset = pot - 0.5f;
@@ -176,7 +177,7 @@ void ReadControls() {
   }
 
   parameters->position =
-      clamp(parameters->position + hardware.GetCV1(), 0.f, 1.f);
+      clamp(parameters->position + hardware.GetCVBipolar1(), 0.f, 1.f);
 }
 
 void AudioCallback(AudioHandle::InputBuffer in, AudioHandle::OutputBuffer out,
@@ -186,11 +187,11 @@ void AudioCallback(AudioHandle::InputBuffer in, AudioHandle::OutputBuffer out,
 
   // CV 2 freezes the buffer while high and sends a trigger per rising edge.
   // The trigger flag is consumed by the processor within this block.
-  const float gate = hardware.GetCV2();
+  const float gate = hardware.GetCVVolts(Loewy::CV::CV_2);
   const bool was_frozen = frozen;
-  if (gate > kFreezeOn) {
+  if (gate > kFreezeOnVolts) {
     frozen = true;
-  } else if (gate < kFreezeOff) {
+  } else if (gate < kFreezeOffVolts) {
     frozen = false;
   }
   parameters->freeze = frozen;
