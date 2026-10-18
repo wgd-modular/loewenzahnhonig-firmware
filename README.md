@@ -24,7 +24,7 @@ One side of the modules front panel has a generic labelling. This table contains
 | CV1          | A4              |
 | CV2          | A5              |
 
-The CV inputs take -5 V to +5 V. The firmwares read them as values from -1 (-5 V) through 0 (0 V, which is also what an unpatched input gives) to 1 (+5 V); `lib/loewy.h` has the details.
+The CV inputs take -5 V to +5 V. The firmwares read them as values from -1 (-5 V) through 0 (0 V) to 1 (+5 V); `lib/loewy.h` has the details.
 
 
 # Compilation

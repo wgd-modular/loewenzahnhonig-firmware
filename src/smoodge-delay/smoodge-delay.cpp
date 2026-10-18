@@ -13,7 +13,7 @@ using namespace std::chrono;
 
 Loewy hardware;
 
-#define CV_CHANGE_TOLERANCE .01f
+#define CV_CHANGE_TOLERANCE .02f
 
 #define MAX_DELAY static_cast<size_t>(48000 * 16.0f)
 static DelayLine<float, MAX_DELAY> DSY_SDRAM_BSS dell;

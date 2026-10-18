@@ -61,7 +61,7 @@ back in time, up to about 0.7 s fully clockwise. While the buffer is frozen this
 scrubs through the captured audio.
 
 CV 1 is added to the pot (0 V adds nothing, +5 V adds the whole range and
--5 V takes it away), with the sum limited to the buffer. A slow LFO or a random voltage smears the
+-5 V takes it away), with the sum clamped to the buffer. A slow LFO or a random voltage smears the
 grains over the recent past; a slow ramp or sequence scrubs a frozen buffer.
 
 ### Pot 2: Size
@@ -111,9 +111,9 @@ position back and forth across the buffer, and 0 V changes nothing.
 
 ### CV 2: Freeze / trigger
 
-While the voltage is above about +2.75 V, the buffer stops recording and the
+While the voltage is above about +2 V, the buffer stops recording and the
 pots play the captured audio. Recording resumes when the voltage drops below
-about +2.25 V (there is some hysteresis, so slow voltages do not chatter).
+about +1 V (there is some hysteresis, so slow voltages do not chatter).
 The Daisy Seed's on-board LED lights while the buffer is frozen. As on Clouds,
 the feedback path is muted while frozen and the reverb rises a little.
 
@@ -214,7 +214,7 @@ is most rewarding to modulate.
 Known limitations that follow from these choices: there is no pitch CV and no
 dry/wet control; Pot 4 is silent at its centre unless CV 2 is triggered; dense
 regular grains at unison are loud; and a gate on CV 2 has to rise above about
-+2.75 V to freeze.
++2 V to freeze.
 
 ## Variants
 

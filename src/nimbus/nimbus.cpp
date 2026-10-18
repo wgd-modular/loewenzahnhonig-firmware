@@ -106,10 +106,10 @@ constexpr Variant kVariant = {
 constexpr float kPitchDeadZone = 0.04f;
 constexpr float kPitchRangeSemitones = 24.f;
 
-// Freeze gate thresholds in volts on CV 2, with hysteresis: a gate of 0 V to
-// +5 V freezes at about half its height and releases a little below that.
-constexpr float kFreezeOnVolts = 2.75f;
-constexpr float kFreezeOffVolts = 2.25f;
+// Freeze gate thresholds in volts on CV 2, with hysteresis. They are low enough
+// for gates of 3.3 V and more and well above the 0 V of a gate that is low.
+constexpr float kFreezeOnVolts = 2.0f;
+constexpr float kFreezeOffVolts = 1.0f;
 
 float PitchFromPot(float pot) {
   float offset = pot - 0.5f;
