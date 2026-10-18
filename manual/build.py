@@ -33,6 +33,8 @@ LINK = re.compile(r"(?<!!)\[([^\]]*)\]\(([^)\s]+)\)")
 BUILDER_SECTION = re.compile(
     r"^(build\w*|flashing\b.*|cpu load|performance)\s*:?$", re.I)
 
+ACRONYMS = {"fm": "FM", "vca": "VCA", "cv": "CV", "lfo": "LFO"}
+
 LOGINS = {}
 NOREPLY = re.compile(r"^(?:\d+\+)?([^@]+)@users\.noreply\.github\.com$")
 
@@ -130,7 +132,8 @@ def first_sentence(text):
 def display_title(title, folder):
     title = title or folder
     if title == title.lower():
-        title = title.replace("-", " ").title()
+        title = " ".join(ACRONYMS.get(word, word.capitalize())
+                         for word in title.replace("-", " ").split())
     return title
 
 
@@ -224,6 +227,8 @@ def history(folder):
         login = LOGINS[person["email"]]
         key = login or person["email"]
         name = person["name"]
+        if name == name.lower() and " " in name:
+            name = name.title()
         if key in authors:
             known = authors[key]["name"]
             name = known if " " in known or " " not in name else name
@@ -282,6 +287,14 @@ def collect():
             text, folder.name, ids))
         sections = [section for section in sections
                     if not BUILDER_SECTION.match(section["title"])]
+        credit = ""
+        for section in list(sections):
+            if re.fullmatch(r"authors?", section["title"], re.I):
+                first, _, rest = section["body"].partition("\n\n")
+                credit = plain(first)
+                intro = "\n\n".join(part for part in (intro, rest.strip())
+                                    if part)
+                sections.remove(section)
         for section in sections:
             if section["title"] == section["title"].lower():
                 section["title"] = section["title"].capitalize()
@@ -296,6 +309,7 @@ def collect():
             "intro": intro,
             "summary": summary(intro, sections),
             "sections": sections,
+            "credit": credit,
             "path": str(folder.relative_to(ROOT)),
             "readme": text,
             "history": history(folder),

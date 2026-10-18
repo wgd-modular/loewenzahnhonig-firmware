@@ -147,10 +147,14 @@
     table(columns: it.columns.slice(0, -1) + (1fr,), align: it.align,
       ..it.children)
   } else {
-    // Small tables stay on one page, large ones may break between rows.
-    context block(radius: 2mm, clip: true, breakable: it.children.len() > 40,
-      stroke: 0.6pt + accent.get().lighten(45%),
-      { set text(size: 8pt); it })
+    // A table stays on one page unless it is too tall for that.
+    context {
+      let inner = { set text(size: 8pt); it }
+      let height = measure(block(width: 118mm, inner)).height
+      block(radius: 2mm, breakable: height > 110mm,
+        stroke: 0.6pt + accent.get().lighten(45%), clip: height <= 110mm,
+        inner)
+    }
   }
 }
 
@@ -277,10 +281,10 @@
   #v(3mm)
   #plaque(colour: clover, inset: 3.5mm)[
     #set text(size: 7.5pt, fill: ink-soft)
-    This manual is put together from the firmware descriptions in the
+    This manual is generated from the firmware descriptions in the
     #box(link("https://github.com/" + data.repo)[loewenzahnhonig-firmware])
-    repository, so it always matches the firmwares it ships with. It was
-    built from commit #raw(data.commit) of #month(data.date).
+    repository. It was built from commit #raw(data.commit) of
+    #month(data.date).
   ]
 ]
 
@@ -307,10 +311,10 @@
     item[P1 to P4][Four knobs, their job depends on the firmware.]
     item[CV1, CV2][Two control voltage inputs for modulation, gates or
       triggers. How a firmware uses them is described in its chapter.]
-    item[IN L, IN R][Stereo audio inputs.]
-    item[OUT L, OUT R][Stereo audio outputs.]
-    item[LED][The Daisy Seed's own LED, which a firmware can use to show
-      what it is doing.]
+    item[INPUT L, R][Stereo audio inputs.]
+    item[OUTPUT L, R][Stereo audio outputs.]
+    item[LED][The Daisy Seed's on-board LED, which a firmware can use to
+      show what it is doing. It is not on the front panel.]
   })
 
 #pagebreak(weak: true)
@@ -319,7 +323,7 @@
 
 One side of the front panel carries generic labels, P1 to P4 for the knobs
 and CV1 and CV2 for the control voltage inputs. The table shows which pin
-of the Daisy Seed each of them is wired to. The panel in the picture is
+of the Daisy Seed each of them is wired to. The panel on the previous page is
 labelled Dry, Wet, Feedback and LP Freq.
 
 #table(columns: (auto, 1fr),
@@ -328,8 +332,8 @@ labelled Dry, Wet, Feedback and LP Freq.
 )
 
 The firmwares read the knobs and the CV inputs as values between 0 and 1.
-The CV input stage of the module is inverting, the firmware library turns
-that around, so a higher voltage gives a higher value. Where a firmware
+The CV input stage of the module is inverting; the shared firmware library
+flips it, so a higher voltage gives a higher value. Where a firmware
 adds a CV input to a knob, the knob sets the starting point and the CV moves
 it from there. The voltage range a firmware expects differs, for example
 Rings reads its CV inputs as bipolar while the first CV input of Nimbus is
@@ -351,7 +355,7 @@ unipolar, so each chapter says what its CV inputs expect.
 // -------------------------------------------------------------- flashing
 
 #themed(clover)[
-= Flashing a firmware
+= Flashing and building
 
 The quickest way to change the firmware is the web flasher, which runs in
 your browser and needs nothing installed.
@@ -420,8 +424,8 @@ it and are indented.
     else { 5mm }, grid(
     columns: (1fr, 8mm), column-gutter: 3mm,
     {
-      text(font: serif, weight: 700, size: 10.5pt, fill: deep(colour),
-        link(label(fw.id), fw.title))
+      link(label(fw.id), text(font: serif, weight: 700, size: 10.5pt,
+        fill: deep(colour), fw.title))
       linebreak()
       text(size: 8.1pt, fill: ink-soft, fw.summary)
     },
@@ -457,6 +461,7 @@ it and are indented.
         show raw: set text(size: 7.5pt)
         grid(columns: (auto, 1fr), column-gutter: 3mm, row-gutter: 1.1mm,
           key[By], people.join(", "),
+          ..if fw.credit != "" { (key[Credit], fw.credit) } else { () },
           key[Added], month(h.added),
           key[Last change], [#month(h.updated) in #link("https://github.com/"
             + data.repo + "/commit/" + h.commit, raw(h.commit))],
