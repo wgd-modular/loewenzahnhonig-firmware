@@ -272,6 +272,8 @@
   }
   #outline(title: none, depth: 1, indent: 0pt)
   #v(1fr)
+  #image("assets/comb-border.svg", width: 100%)
+  #v(3mm)
   #plaque(colour: clover, inset: 3.5mm)[
     #set text(size: 7.5pt, fill: ink-soft)
     This manual is put together from the firmware descriptions in the
