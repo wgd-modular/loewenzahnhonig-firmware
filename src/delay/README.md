@@ -1,10 +1,10 @@
-# delay
+# Delay
 
 A basic delay with dry/wet control and cv controllable feedback and delay time.
 
-##### Status: Work in progress
+Status: work in progress
 
-### controls
+## Controls
 
 | Control | Function        |
 |---------|-----------------|

@@ -242,7 +242,7 @@ the releases next to the other firmwares.
    quality (0 = 16-bit stereo, 1 = 16-bit mono, 2 = 8-bit stereo, 3 = 8-bit
    mono), the role of each pot (position, size, pitch, density, texture or
    feedback) and the values of the parameters that get no pot.
-3. Run `make` in the new folder and describe the variant in its README.
+3. Run `pixi run build <name>` for the new folder and describe the variant in its README.
    `build_firmwares.py` and CI pick up every folder with a Makefile.
 
 ## Technical notes
@@ -263,18 +263,17 @@ the releases next to the other firmwares.
 
 ## Building
 
-Build the libraries once with `./build_libs.sh` from the repository root, then:
+From the repository root run:
 
 ```shell
-cd src/nimbus
-make
+pixi run build nimbus
 ```
 
-The binary ends up in `build/nimbus.bin`. The variants are built the same way
-from their own folders (`src/nimbus-stretch` and so on).
+The binary ends up in `src/nimbus/build/nimbus.bin`. The variants are built the
+same way by name (`pixi run build nimbus-stretch` and so on).
 
 ## Credits
 
 - Clouds: Émilie Gillet (Mutable Instruments), MIT licensed
 - Nimbus (Daisy port of Clouds): Ben Sergentanis (Electro-Smith)
-- Löwenzahnhonig port: created using Claude Code
+- Löwenzahnhonig port: Ben van der Burgh

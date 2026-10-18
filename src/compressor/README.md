@@ -1,8 +1,8 @@
-# compressor
+# Compressor
 
 A basic compressor with attack, release, threshold and ratio controls.
 
-### controls
+## Controls
 
 | Control | Function        |
 |---------|-----------------|

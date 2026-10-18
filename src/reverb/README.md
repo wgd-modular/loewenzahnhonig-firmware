@@ -1,8 +1,8 @@
-# reverb
+# Reverb
 
 A basic reverb with dry/wet control and cv controllable feedback and low pass frequency.
 
-### controls
+## Controls
 
 | Control | Function        |
 |---------|-----------------|

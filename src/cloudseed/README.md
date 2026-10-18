@@ -368,10 +368,10 @@ reports how much of it was never used.
 ## Building
 
 Fetch the submodules (`git submodule update --init --recursive`; the
-library is `lib/cloudseed-daisy`), build the libraries once with
-`./build_libs.sh` from the repository root, then run `make` in this folder;
-the binary ends up in `build/cloudseed.bin`. The options above can be given
-on the make command line; a changed option rebuilds the firmware.
+library is `lib/cloudseed-daisy`), then run `pixi run build cloudseed` from the
+repository root; the binary ends up in `src/cloudseed/build/cloudseed.bin`.
+To set the options above, run `pixi shell` and give them on the make command
+line in this folder; a changed option rebuilds the firmware.
 
 The host tests of the reverb, the staging, the engine and the fidelity
 against the plugin's reference live in the library (`lib/cloudseed-daisy/test`,

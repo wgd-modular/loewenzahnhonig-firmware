@@ -5,7 +5,7 @@ Delay times up to 16 seconds are supported and it has no noticeable minimum dela
 
 In addition to behaving like a regular stereo delay effect, there is an adjustable spatial effect called smoodge.
 At low levels (1-50%) smoodge will create a wider stereo field using psychoacoustic techniques.
-At higher levels (50-100%) the psychoacoustic techniques increase in intensity, plus other effects are introduced such as wow and flutter, tape saturation and a stereo tremelo effect that varies over time if you are clocking the module.
+At higher levels (50-100%) the psychoacoustic techniques increase in intensity, plus other effects are introduced such as wow and flutter, tape saturation and a stereo tremolo effect that varies over time if you are clocking the module.
 The smoodge effect is most noticeable when both the Wet and Feedback controls move towards higher ranges.
 
 If you are using a mono source this effect works best if InL is normalled to InR in hardware.
@@ -15,15 +15,16 @@ If you are using a mono source this effect works best if InL is normalled to InR
 Nik Ansell (gamecat69)
 
 ### Version History
-0.1		Nik Ansell		Initial plaything
-0.2     Nik Ansell      Updated Smoodge Effect
-0.3     Nik Ansell      Added tape effects to smoodge parameter
-0.4     Nik Ansell      Tweaked the behaviour of the smoodge effect
-0.5     Nik Ansell      Added alt firmware (CV2 controls Smoodge instead of Feedback)
 
-## Description
+| Version | Author     | Change |
+|---------|------------|--------|
+| 0.1     | Nik Ansell | Initial plaything |
+| 0.2     | Nik Ansell | Updated Smoodge Effect |
+| 0.3     | Nik Ansell | Added tape effects to smoodge parameter |
+| 0.4     | Nik Ansell | Tweaked the behaviour of the smoodge effect |
+| 0.5     | Nik Ansell | Added alt firmware (CV2 controls Smoodge instead of Feedback) |
 
-### Controls:
+## Controls
 
 | Control | Function        |
 |---------|-----------------|
@@ -34,7 +35,7 @@ Nik Ansell (gamecat69)
 | CV1     | Input Clock      |
 | CV2     | Delay Feedback (Repeats) Summed with P1. Or Smoodge if running alt firmware     |
 
-### Usage
+## Usage
 
 Start by plugging in a stereo sound source (or mono into the L input if you have normalled your R-input to the L-input), then connect the left and right outputs to a mixer.
 
@@ -54,11 +55,11 @@ The Delay Feedback and Dry/Wet controls act as you would expect:
 - Delay Feedback: At min will produce one repeat/echo. At max it will feedback infinitely - you can even remove your sound source once it is looping if you like!
 - Dry/Wet; At min the output is 100% dry. At max the output is 100% wet.
 
-#### Delay Time
+### Delay Time
 
 The Delay Time control will change the delay time as a division or multiplication of the delay time set by the input clock.
 Note, if you turn on the module without giving it a clock the default delay time is 1 second.
-If you imagine the knob goes from 0 to 10, below you will find the divisions/multiplications that corespond to each number on the dial.
+If you imagine the knob goes from 0 to 10, below you will find the divisions/multiplications that correspond to each number on the dial.
 
 - 0: /8
 - 1: /4
@@ -72,8 +73,8 @@ If you imagine the knob goes from 0 to 10, below you will find the divisions/mul
 - 9: x5
 - 10: x8
 
-If for example you send in clocks which are 1 second apart, setting the Delay Time knob in the centre would produce echos every second, at min it would produce an echo every 1/8th of a second and at max it would produce an echo every 8 seconds.
+If for example you send in clocks which are 1 second apart, setting the Delay Time knob in the centre would produce echoes every second, at min it would produce an echo every 1/8th of a second and at max it would produce an echo every 8 seconds.
 
 ## Flashing your Daisy Seed
 
-To load this firmware onto your Daisy seed, use the Daisy Web Programmer from electrosmith, just browse to the build/wgd-delay.bin file in this repo as part of the process.
+To load this firmware onto your Daisy Seed, open the [web flasher](https://wgd-modular.github.io/loewenzahnhonig-firmware/) and flash `smoodge-delay` from the list, or flash a `.bin` you built yourself with `pixi run build smoodge-delay`.
